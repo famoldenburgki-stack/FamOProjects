@@ -1,0 +1,22 @@
+﻿{
+    "version":  "0.0.1",
+    "configurations":  [
+                           {
+                               "name":  "arztrechnungen",
+                               "runtimeExecutable":  "cmd.exe",
+                               "runtimeArgs":  [
+                                                   "/c",
+                                                   ".claude\\dev.cmd"
+                                               ],
+                               "port":  5173
+                           },
+                           {
+                               "name":  "vereinskasse",
+                               "runtimeExecutable":  "node",
+                               "runtimeArgs":  [
+                                                   "G:\\Privat\\001 Tim\\001 Kasse TuS Eschbach Abt Fußball\\Kassentool\\server.js"
+                                               ],
+                               "port":  5177
+                           }
+                       ]
+}

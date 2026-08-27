@@ -1,0 +1,15 @@
+# Andere Projekte in diesem Arbeitsordner – noch nicht versioniert
+/HEIC Converter/
+/MiniGame/
+/Polizei/
+/TimsFactoryDefence/
+/ebayKA/
+/Icon.png
+
+# Lokale Berechtigungen von Claude Code
+.claude/settings.local.json
+
+# Sonstiges
+*.log
+.DS_Store
+Thumbs.db

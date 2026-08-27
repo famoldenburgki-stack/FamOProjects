@@ -1,0 +1,1 @@
+Hier Muster-PDFs von DBV und Beihilfe ablegen. Dieser Ordner ist von Git ausgeschlossen und wird nicht Teil der App.

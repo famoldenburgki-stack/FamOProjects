@@ -1,0 +1,719 @@
+<title>Feierabend für die Tabelle</title>
+<style>
+  /*
+   * Werbefilm für die App "Arztrechnungen".
+   *
+   * Bewusst einfarbig dunkel (ein Film hat keinen Hell-Modus), aber jede Farbe ist
+   * ausdrücklich gesetzt – die Seite hängt an keiner Umgebung.
+   *
+   * Alle Maße hängen an --u: im Querformat an der kleineren Bildschirmseite, im
+   * Hochformat an der Breite mit größerem Maßstab. So trägt derselbe Film auf dem
+   * Beamer wie auf dem Telefon.
+   *
+   * Die beiden App-Ansichten (Übersicht, Einreichen) sind mit den echten Stilwerten
+   * aus frontend/src/index.css und den Badge-Farben aus format.ts nachgebaut. Die
+   * Daten darin sind erfunden – ein Werbefilm ist der letzte Ort für echte Belege.
+   */
+  :root{
+    --tinte:#0a1020;          /* Grund: Tiefblau statt neutralem Grau */
+    --tinte-hoch:#111c33;
+    --brand:#2563eb;          /* brand-600 der App */
+    --brand-hell:#60a5fa;
+    --brand-50:#eff6ff; --brand-700:#1d4ed8;
+    --papier:#f8fafc;
+    --nebel:#9fb0cc;
+    --rot:#ef4444;
+
+    /* Slate-Töne der App */
+    --s100:#f1f5f9; --s200:#e2e8f0; --s300:#cbd5e1;
+    --s500:#64748b; --s700:#334155; --s800:#1e293b;
+
+    --u: min(1vw, 1.7778vh);
+    --schrift: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0}
+  html{height:100%}
+  body{
+    min-height:100vh; min-height:100dvh;
+    background:var(--tinte); color:var(--papier);
+    font-family:var(--schrift);
+    display:grid; place-items:center; overflow:hidden;
+    -webkit-text-size-adjust:100%;
+  }
+
+  .buehne{
+    position:relative;
+    width:min(100vw, 177.78vh); height:min(56.25vw, 100vh);
+    background:
+      radial-gradient(115% 85% at 12% 0%, var(--tinte-hoch) 0%, transparent 58%),
+      radial-gradient(95% 75% at 92% 100%, #0e1a30 0%, transparent 58%),
+      var(--tinte);
+    overflow:hidden; cursor:pointer;
+  }
+  @media (orientation:portrait){
+    :root{ --u: 1.85vw; }
+    .buehne{ width:100vw; height:100vh; height:100dvh; }
+  }
+
+  .szene{
+    position:absolute; inset:0;
+    display:grid; place-content:center; justify-items:center; text-align:center;
+    padding:0 calc(6*var(--u)); gap:calc(2.1*var(--u));
+    opacity:0; transform:translateY(calc(1.6*var(--u)));
+    transition:opacity .7s ease, transform .7s ease;
+  }
+  .szene.an{opacity:1; transform:none}
+  .szene.raus{opacity:0; transform:translateY(calc(-1.6*var(--u)))}
+  .szene.links{justify-items:start; text-align:left}
+
+  .kicker{
+    font-size:calc(1.45*var(--u)); font-weight:600;
+    letter-spacing:.4em; text-transform:uppercase; color:var(--brand-hell);
+  }
+  h1{font-size:calc(6.4*var(--u)); font-weight:800; line-height:1.03; letter-spacing:-.025em; text-wrap:balance}
+  h2{font-size:calc(4.3*var(--u)); font-weight:800; line-height:1.1; letter-spacing:-.02em; text-wrap:balance}
+  p.unter{
+    font-size:calc(1.85*var(--u)); line-height:1.5; color:var(--nebel);
+    max-width:calc(52*var(--u)); text-wrap:pretty;
+  }
+  .akzent{color:var(--brand-hell)}
+
+  .weg{position:relative; color:#64748b; white-space:nowrap}
+  .weg::after{
+    content:""; position:absolute; left:-2%; top:54%; width:0; height:calc(.28*var(--u));
+    background:var(--rot); border-radius:var(--u);
+    transition:width .85s cubic-bezier(.4,0,.2,1) .9s;
+  }
+  .an .weg::after{width:104%}
+
+  /* ---------- Formularkarte (Szene "Sie liest") ---------- */
+  .karte{
+    background:#fff; color:var(--s800);
+    border:1px solid var(--s200); border-radius:calc(1.2*var(--u)); padding:calc(2.2*var(--u));
+    box-shadow:0 calc(2.5*var(--u)) calc(5*var(--u)) rgba(2,6,20,.55);
+    width:min(calc(48*var(--u)), 92%); text-align:left;
+  }
+  .feld{
+    display:flex; justify-content:space-between; align-items:center; gap:var(--u);
+    padding:calc(.85*var(--u)) 0; border-bottom:1px solid var(--s200);
+    font-size:calc(1.55*var(--u));
+  }
+  .feld:last-child{border-bottom:0}
+  .feld .name{color:var(--s500)}
+  .feld .wert{
+    font-weight:600; font-variant-numeric:tabular-nums;
+    opacity:0; transform:translateX(calc(1.1*var(--u)));
+    transition:opacity .45s ease, transform .45s ease;
+  }
+  .feld.gefuellt .wert{opacity:1; transform:none}
+
+  /* ---------- Die echte App im Fenster ---------- */
+  .fenster{
+    width:min(calc(88*var(--u)), 96%);
+    background:var(--s100); color:var(--s800); text-align:left;
+    border-radius:calc(1.1*var(--u)); overflow:hidden;
+    box-shadow:0 calc(3*var(--u)) calc(6*var(--u)) rgba(2,6,20,.6);
+    opacity:0; transform:translateY(calc(1.4*var(--u))) scale(.985);
+    transition:opacity .6s ease, transform .6s ease;
+  }
+  .an .fenster{opacity:1; transform:none}
+
+  /* Kopfleiste wie in der App: weiß, Trennlinie, aktiver Reiter in brand-50 */
+  .leiste{
+    display:flex; align-items:center; gap:calc(1.6*var(--u));
+    background:#fff; border-bottom:1px solid var(--s200);
+    padding:calc(1*var(--u)) calc(1.4*var(--u));
+  }
+  .leiste .logo{display:flex; align-items:center; gap:calc(.7*var(--u)); font-weight:700; font-size:calc(1.4*var(--u))}
+  .leiste .logo svg{width:calc(2.1*var(--u)); height:calc(2.1*var(--u)); display:block}
+  .reiter{display:flex; gap:calc(.3*var(--u)); flex-wrap:nowrap; overflow:hidden}
+  .reiter span{
+    border-radius:calc(.65*var(--u)); padding:calc(.45*var(--u)) calc(.95*var(--u));
+    font-size:calc(1.15*var(--u)); font-weight:500; color:var(--s500); white-space:nowrap;
+  }
+  .reiter span.aktiv{background:var(--brand-50); color:var(--brand-700)}
+  .reiter span.zaehler::after{
+    content:attr(data-n); margin-left:calc(.45*var(--u));
+    background:#fef3c7; color:#92400e; border-radius:calc(3*var(--u));
+    padding:0 calc(.45*var(--u)); font-size:calc(.95*var(--u)); font-weight:700;
+  }
+
+  .inhalt{padding:calc(1.4*var(--u))}
+
+  /* Kennzahlen-Karten der Übersicht */
+  .kennzahlen{display:grid; grid-template-columns:repeat(3, 1fr); gap:calc(1*var(--u)); margin-bottom:calc(1.2*var(--u))}
+  .kz{
+    background:#fff; border:1px solid var(--s200); border-radius:calc(.85*var(--u));
+    padding:calc(1.1*var(--u)); box-shadow:0 1px 2px rgba(15,23,42,.06);
+  }
+  .kz b{display:block; font-size:calc(.95*var(--u)); font-weight:600; text-transform:uppercase;
+        letter-spacing:.08em; color:var(--s500)}
+  .kz strong{display:block; font-size:calc(2.4*var(--u)); font-weight:700; font-variant-numeric:tabular-nums;
+             letter-spacing:-.02em; margin-top:calc(.25*var(--u))}
+  .kz em{display:block; font-style:normal; font-size:calc(1*var(--u)); color:var(--s500); margin-top:calc(.15*var(--u))}
+  .kz.warnt strong{color:#b45309}
+
+  /* Tabelle mit den echten .th/.td-Maßen */
+  .tafel{background:#fff; border:1px solid var(--s200); border-radius:calc(.85*var(--u)); padding:calc(1.1*var(--u))}
+  table{width:100%; border-collapse:collapse}
+  th{
+    padding:calc(.5*var(--u)) calc(.6*var(--u)); text-align:left; white-space:nowrap;
+    font-size:calc(.95*var(--u)); font-weight:600; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--s500); border-bottom:1px solid var(--s200);
+  }
+  td{
+    padding:calc(.62*var(--u)) calc(.6*var(--u)); white-space:nowrap;
+    font-size:calc(1.15*var(--u)); border-bottom:1px solid #f1f5f9;
+  }
+  tr:last-child td{border-bottom:0}
+  .r{text-align:right; font-variant-numeric:tabular-nums}
+  .fett{font-weight:600}
+  .link{color:var(--brand-700); font-weight:600}
+  tbody tr{opacity:0; transition:opacity .4s ease}
+  tbody tr.zeig{opacity:1}
+
+  /* Badges: Form und Farben aus format.ts */
+  .badge{
+    display:inline-block; border:1px solid; border-radius:calc(3*var(--u));
+    padding:0 calc(.55*var(--u)); font-size:calc(.95*var(--u)); font-weight:500; line-height:1.7;
+  }
+  .b-offen{background:var(--s100); color:var(--s700); border-color:var(--s200)}
+  .b-eingereicht{background:#eff6ff; color:#1d4ed8; border-color:#bfdbfe}
+  .b-bezahlt{background:#ecfdf5; color:#047857; border-color:#a7f3d0}
+  .b-teil{background:#fffbeb; color:#92400e; border-color:#fde68a}
+  .b-abgelehnt{background:#fef2f2; color:#b91c1c; border-color:#fecaca}
+  .b-arbeit{background:#eef2ff; color:#4338ca; border-color:#c7d2fe}
+
+  .gezahlt{color:#047857; font-weight:600}
+  .knopf-mini{
+    display:inline-block; border:1px solid #a7f3d0; border-radius:calc(.6*var(--u));
+    padding:0 calc(.6*var(--u)); font-size:calc(.95*var(--u)); font-weight:600; color:#047857; line-height:1.8;
+  }
+
+  /* Einreichen: die Kachel mit Anzahl und Gesamtbetrag */
+  .einreich-kopf{display:flex; justify-content:space-between; align-items:flex-start; gap:var(--u); margin-bottom:calc(1*var(--u))}
+  .einreich-kopf h3{font-size:calc(1.6*var(--u)); font-weight:700}
+  .einreich-kopf p{font-size:calc(1.05*var(--u)); color:var(--s500); margin-top:calc(.2*var(--u))}
+  .knopfreihe{display:flex; gap:calc(.5*var(--u)); flex-shrink:0}
+  .kn{border-radius:calc(.65*var(--u)); padding:calc(.5*var(--u)) calc(.9*var(--u));
+      font-size:calc(1.05*var(--u)); font-weight:500; white-space:nowrap}
+  .kn.prim{background:var(--brand); color:#fff}
+  .kn.sek{background:#fff; border:1px solid var(--s300); color:var(--s700)}
+  .summe{
+    display:flex; gap:calc(3*var(--u)); align-items:flex-end;
+    background:var(--brand-50); border-radius:calc(.8*var(--u));
+    padding:calc(1.1*var(--u)) calc(1.4*var(--u)); margin-bottom:calc(1*var(--u));
+  }
+  .summe div b{display:block; font-size:calc(.95*var(--u)); font-weight:600; text-transform:uppercase;
+               letter-spacing:.08em; color:var(--s500)}
+  .summe div strong{
+    display:block; font-size:calc(2.7*var(--u)); font-weight:700; font-variant-numeric:tabular-nums;
+    letter-spacing:-.02em; color:var(--s800);
+  }
+
+  /* Im Hochformat wird die Tabelle schmaler: dieselben Spalten wie in einer
+     responsiven Ansicht, die entbehrlichen fallen weg. */
+  @media (orientation:portrait){
+    .fenster{width:98%}
+    .kennzahlen{grid-template-columns:repeat(2, 1fr)}
+    .kennzahlen .kz:nth-child(3){display:none}
+    .weglassbar{display:none}
+    .reiter .nur-quer{display:none}
+    td{font-size:calc(1.35*var(--u))}
+    th{font-size:calc(1.1*var(--u))}
+    .summe{gap:calc(2*var(--u))}
+  }
+
+  /* ---------- Anteilsbalken ---------- */
+  .anteile{
+    display:flex; overflow:hidden; background:#1c2942;
+    width:min(calc(52*var(--u)), 92%); height:calc(2.8*var(--u)); border-radius:calc(.7*var(--u));
+  }
+  .anteile span{
+    display:grid; place-items:center; width:0; white-space:nowrap;
+    font-size:calc(1.4*var(--u)); font-weight:700; font-variant-numeric:tabular-nums;
+    transition:width 1.15s cubic-bezier(.2,.8,.2,1) .35s;
+  }
+  .an .anteile .bh{width:65%; background:var(--brand)}
+  .an .anteile .dbv{width:35%; background:#0ea5e9}
+
+  /* ---------- Bescheidpositionen ---------- */
+  .chip{
+    display:inline-flex; align-items:center; justify-content:center;
+    border-radius:calc(6*var(--u)); padding:calc(.4*var(--u)) calc(1.05*var(--u));
+    font-size:calc(1.25*var(--u)); font-weight:700; font-variant-numeric:tabular-nums;
+  }
+  .chip.gruen{background:rgba(34,197,94,.16); color:#4ade80}
+  .chip.gelb{background:rgba(245,158,11,.16); color:#fbbf24}
+  .chip.rot{background:rgba(239,68,68,.16); color:#f87171}
+  .karte .chip.gelb{background:#fef3c7; color:#92400e}
+
+  .posten{display:grid; gap:calc(.85*var(--u)); width:min(calc(56*var(--u)), 94%)}
+  .pos{
+    display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:calc(1.2*var(--u));
+    background:#eef2f8; color:var(--s800); border-radius:calc(.7*var(--u));
+    padding:calc(.9*var(--u)) calc(1.2*var(--u)); font-size:calc(1.4*var(--u)); text-align:left;
+    opacity:0; transform:translateY(calc(.9*var(--u)));
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .pos.zeig{opacity:1; transform:none}
+  .pos .betrag{font-weight:700; font-variant-numeric:tabular-nums}
+  .pos.gekuerzt{background:#fff7ed; box-shadow:inset 0 0 0 calc(.16*var(--u)) #fdba74}
+  .pos .chip.gruen{background:#dcfce7; color:#166534}
+  .pos .chip.rot{background:#fee2e2; color:#991b1b}
+
+  /* ---------- Beleg fliegt in den Ordner ---------- */
+  .flug{position:relative; width:min(calc(44*var(--u)), 92%); height:calc(18*var(--u))}
+  .beleg{
+    position:absolute; left:0; top:calc(1.5*var(--u));
+    width:calc(10.5*var(--u)); height:calc(14*var(--u)); border-radius:calc(.8*var(--u));
+    background:#fff; box-shadow:0 calc(1.6*var(--u)) calc(3.4*var(--u)) rgba(2,6,20,.5);
+    transform:rotate(-7deg);
+    transition:transform 1.5s cubic-bezier(.5,0,.2,1) .45s, opacity .45s ease 1.65s;
+  }
+  .beleg i{display:block; height:calc(.65*var(--u)); margin:calc(1.3*var(--u)) calc(1.1*var(--u)) 0;
+           border-radius:var(--u); background:#dbeafe}
+  .beleg i:nth-child(2){width:58%} .beleg i:nth-child(3){width:76%} .beleg i:nth-child(4){width:44%}
+  .an .beleg{transform:translate(calc(29*var(--u)), calc(3*var(--u))) rotate(9deg) scale(.38); opacity:0}
+  .ordner{
+    position:absolute; right:0; top:calc(3*var(--u));
+    width:calc(14*var(--u)); height:calc(10*var(--u)); border-radius:calc(1*var(--u));
+    background:linear-gradient(158deg, #3b82f6, #1d4ed8);
+    box-shadow:0 calc(1.6*var(--u)) calc(4*var(--u)) rgba(37,99,235,.42);
+    display:grid; place-items:center; text-align:center; padding:0 calc(.8*var(--u));
+    font-size:calc(1.3*var(--u)); font-weight:700; line-height:1.25;
+  }
+  .ordner::before{
+    content:""; position:absolute; left:calc(1.1*var(--u)); top:calc(-1*var(--u));
+    width:calc(5.5*var(--u)); height:calc(1.5*var(--u));
+    border-radius:calc(.6*var(--u)) calc(.6*var(--u)) 0 0; background:#3b82f6;
+  }
+
+  .liste{display:grid; gap:calc(1.15*var(--u)); font-size:calc(1.65*var(--u)); text-align:left}
+  .liste div{
+    display:flex; align-items:center; gap:calc(1.1*var(--u));
+    opacity:0; transform:translateX(calc(-1.2*var(--u)));
+    transition:opacity .5s ease, transform .5s ease;
+  }
+  .liste div.zeig{opacity:1; transform:none}
+  .liste .chip{min-width:calc(9*var(--u))}
+
+  .marke{
+    position:absolute; left:calc(4*var(--u)); top:calc(3*var(--u));
+    display:flex; align-items:center; gap:calc(.9*var(--u));
+    font-size:calc(1.5*var(--u)); font-weight:700; letter-spacing:-.01em; opacity:.9;
+  }
+  .marke svg{width:calc(2.6*var(--u)); height:calc(2.6*var(--u)); display:block}
+
+  /* "Arztrechnungen" ist ein langes Wort: im Hochformat begrenzt die Bildbreite. */
+  .schluss{font-size:min(calc(7.6*var(--u)), 9.5vw); font-weight:800; letter-spacing:-.03em; line-height:1}
+
+  .kapitel{
+    position:absolute; left:calc(4*var(--u)); right:calc(4*var(--u)); bottom:calc(2.2*var(--u));
+    display:flex; gap:calc(.5*var(--u));
+  }
+  .kapitel b{
+    flex:1; height:calc(.32*var(--u)); min-height:2px; border-radius:calc(.4*var(--u));
+    background:rgba(226,232,240,.18); overflow:hidden;
+  }
+  .kapitel b i{display:block; height:100%; width:0; background:var(--brand-hell)}
+
+  .hinweis{
+    position:absolute; right:calc(4*var(--u)); bottom:calc(4.2*var(--u));
+    font-size:calc(1.2*var(--u)); color:var(--nebel); opacity:0; transition:opacity .4s ease;
+  }
+  .hinweis.zeigen{opacity:.85}
+
+  @media (prefers-reduced-motion: reduce){
+    .szene, .beleg, .feld .wert, .pos, .liste div, .anteile span, .weg::after,
+    .kapitel b i, .fenster, tbody tr{ transition-duration:1ms !important; }
+  }
+</style>
+
+<div class="buehne" id="buehne" role="img" aria-label="Werbefilm der App Arztrechnungen">
+
+  <div class="marke">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="mk" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#1e40af"/></linearGradient></defs>
+      <rect width="64" height="64" rx="14" fill="url(#mk)"/>
+      <path d="M18 13h20l10 10v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z" fill="#fff"/>
+      <path d="M38 13l10 10H40a2 2 0 0 1-2-2z" fill="#bfdbfe"/>
+      <g fill="#93c5fd"><rect x="24" y="28" width="18" height="2.6" rx="1.3"/>
+      <rect x="24" y="34" width="14" height="2.6" rx="1.3"/></g>
+      <circle cx="41" cy="44" r="9.5" fill="#16a34a"/>
+      <path d="M36.6 44.2l3 3 5.4-5.8" fill="none" stroke="#fff" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Arztrechnungen
+  </div>
+
+  <!-- 1 -->
+  <section class="szene" data-dauer="5000">
+    <div class="kicker">Privat versichert · beihilfeberechtigt</div>
+    <h1>Jede Rechnung.<br><span class="akzent">Zweimal</span> einreichen.</h1>
+    <p class="unter">Beihilfe und DBV. Zwei Portale, zwei Fristen, zwei Bescheide –
+      und mittendrin <span class="weg">eine Excel-Tabelle</span></p>
+  </section>
+
+  <!-- 2 -->
+  <section class="szene" data-dauer="5400">
+    <h2>Foto rein. Mehr nicht.</h2>
+    <div class="flug">
+      <div class="beleg"><i></i><i></i><i></i><i></i></div>
+      <div class="ordner">Überwachter<br>Ordner</div>
+    </div>
+    <p class="unter">Beim nächsten Start des Rechners liest die App den Ordner aus –
+      Rechnungen und Bescheide, sie unterscheidet das selbst.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="szene" data-dauer="6600">
+    <div class="kicker">Texterkennung</div>
+    <h2>Sie liest, du nickst ab.</h2>
+    <div class="karte">
+      <div class="feld"><span class="name">Patient</span><span class="wert">Bela</span></div>
+      <div class="feld"><span class="name">Arzt</span><span class="wert">Praxis am Stadtpark</span></div>
+      <div class="feld"><span class="name">Rechnungsdatum</span><span class="wert">14.03.2026</span></div>
+      <div class="feld"><span class="name">Betrag</span><span class="wert">248,60 €</span></div>
+      <div class="feld"><span class="name">Zahlbar bis</span>
+        <span class="wert">28.03.2026 <span class="chip gelb">in 14 Tagen</span></span></div>
+    </div>
+  </section>
+
+  <!-- 4: die echte Übersicht -->
+  <section class="szene" data-dauer="7600">
+    <div class="kicker">So sieht es aus</div>
+    <div class="fenster">
+      <div class="leiste">
+        <span class="logo">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect width="64" height="64" rx="14" fill="#2563eb"/>
+            <path d="M18 13h20l10 10v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z" fill="#fff"/>
+            <circle cx="41" cy="44" r="9.5" fill="#16a34a"/>
+            <path d="M36.6 44.2l3 3 5.4-5.8" fill="none" stroke="#fff" stroke-width="2.6"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Arztrechnungen
+        </span>
+        <span class="reiter">
+          <span class="aktiv">Übersicht</span>
+          <span class="zaehler" data-n="2">Eingang</span>
+          <span class="nur-quer">Rechnung hochladen</span>
+          <span class="nur-quer">Einreichen</span>
+          <span class="nur-quer">Bescheid prüfen</span>
+          <span class="nur-quer">Aufgaben</span>
+          <span class="nur-quer">Statistik</span>
+          <span class="nur-quer">Einstellungen</span>
+        </span>
+      </div>
+      <div class="inhalt">
+        <div class="kennzahlen">
+          <div class="kz"><b>Nicht abgeschlossen</b><strong>7</strong><em>1.284,90 € noch nicht erstattet</em></div>
+          <div class="kz warnt"><b>Noch an Ärzte zu zahlen</b><strong>344,00 €</strong><em>2 offen, 1 davon fällig</em></div>
+          <div class="kz"><b>Rechnungen 2026</b><strong>3.918,40 €</strong><em>2.633,50 € erstattet</em></div>
+        </div>
+        <div class="tafel">
+          <table>
+            <thead>
+              <tr>
+                <th>Rechnung</th><th>Patient</th><th class="weglassbar">Arzt</th>
+                <th class="r">Betrag</th><th>Zahlung</th>
+                <th>Beihilfe</th><th>DBV</th><th class="weglassbar">Gesamt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="link">14.03.2026</td><td>Bela</td><td class="weglassbar">Praxis am Stadtpark</td>
+                  <td class="r fett">248,60 €</td><td><span class="knopf-mini">bezahlt</span></td>
+                  <td><span class="badge b-offen">offen</span></td><td><span class="badge b-offen">offen</span></td>
+                  <td class="weglassbar"><span class="badge b-offen">nicht eingereicht</span></td></tr>
+              <tr><td class="link">02.03.2026</td><td>Ina</td><td class="weglassbar">Zahnarzt Bergmann</td>
+                  <td class="r fett">412,00 €</td><td class="gezahlt">✓ bezahlt</td>
+                  <td><span class="badge b-eingereicht">eingereicht</span></td><td><span class="badge b-eingereicht">eingereicht</span></td>
+                  <td class="weglassbar"><span class="badge b-eingereicht">eingereicht</span></td></tr>
+              <tr><td class="link">18.02.2026</td><td>Nora</td><td class="weglassbar">Laborpraxis Nord</td>
+                  <td class="r fett">96,40 €</td><td class="gezahlt">✓ bezahlt</td>
+                  <td><span class="badge b-teil">teilweise bezahlt</span></td><td><span class="badge b-bezahlt">bezahlt</span></td>
+                  <td class="weglassbar"><span class="badge b-arbeit">in Bearbeitung</span></td></tr>
+              <tr><td class="link">27.01.2026</td><td>Ali</td><td class="weglassbar">Radiologie Mitte</td>
+                  <td class="r fett">613,20 €</td><td class="gezahlt">✓ bezahlt</td>
+                  <td><span class="badge b-bezahlt">bezahlt</span></td><td><span class="badge b-bezahlt">bezahlt</span></td>
+                  <td class="weglassbar"><span class="badge b-bezahlt">abgeschlossen</span></td></tr>
+              <tr><td class="link">09.01.2026</td><td>Jonas</td><td class="weglassbar">Kinderarztpraxis Süd</td>
+                  <td class="r fett">95,40 €</td><td class="gezahlt">✓ bezahlt</td>
+                  <td><span class="badge b-bezahlt">bezahlt</span></td><td><span class="badge b-bezahlt">bezahlt</span></td>
+                  <td class="weglassbar"><span class="badge b-bezahlt">abgeschlossen</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="szene" data-dauer="4800">
+    <h2>Ein Beleg, zwei Vorgänge.</h2>
+    <div class="anteile"><span class="bh">Beihilfe 65 %</span><span class="dbv">DBV 35 %</span></div>
+    <p class="unter">Der Beihilfesatz jeder Person steckt in der App. Die erwartete
+      Erstattung steht fest, bevor der erste Bescheid kommt.</p>
+  </section>
+
+  <!-- 6: die echte Einreich-Ansicht -->
+  <section class="szene" data-dauer="7400">
+    <div class="kicker">Einreichen</div>
+    <div class="fenster">
+      <div class="leiste">
+        <span class="logo">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect width="64" height="64" rx="14" fill="#2563eb"/>
+            <path d="M18 13h20l10 10v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z" fill="#fff"/>
+            <circle cx="41" cy="44" r="9.5" fill="#16a34a"/>
+            <path d="M36.6 44.2l3 3 5.4-5.8" fill="none" stroke="#fff" stroke-width="2.6"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Arztrechnungen
+        </span>
+        <span class="reiter">
+          <span class="nur-quer">Übersicht</span><span class="nur-quer">Eingang</span>
+          <span class="nur-quer">Rechnung hochladen</span>
+          <span class="aktiv">Einreichen</span>
+          <span class="nur-quer">Bescheid prüfen</span>
+          <span>Aufgaben</span>
+          <span class="nur-quer">Statistik</span><span class="nur-quer">Einstellungen</span>
+        </span>
+      </div>
+      <div class="inhalt">
+        <div class="tafel">
+          <div class="einreich-kopf">
+            <div>
+              <h3>Beihilfe · Zugang Ali</h3>
+              <p>3 offene Rechnungen · erwartete Erstattung 491,79 €</p>
+            </div>
+            <div class="knopfreihe">
+              <span class="kn sek">Beihilfe öffnen ↗</span>
+              <span class="kn sek">📁 Belege bereitlegen</span>
+              <span class="kn prim">Als eingereicht abhaken</span>
+            </div>
+          </div>
+          <div class="summe">
+            <div><b>Anzahl Belege</b><strong>3</strong></div>
+            <div><b>Gesamtbetrag</b><strong>757,00 €</strong></div>
+          </div>
+          <table>
+            <thead>
+              <tr><th>Nr.</th><th>Rechnung</th><th>Patient</th><th class="weglassbar">Arzt</th>
+                  <th class="r">Betrag</th><th>Beleg</th><th>Frist</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td class="link">14.03.2026</td><td>Bela</td><td class="weglassbar">Praxis am Stadtpark</td>
+                  <td class="r fett">248,60 €</td><td class="gezahlt">✓</td><td>noch 41 Tage</td></tr>
+              <tr><td>2</td><td class="link">02.03.2026</td><td>Ina</td><td class="weglassbar">Zahnarzt Bergmann</td>
+                  <td class="r fett">412,00 €</td><td class="gezahlt">✓</td><td>02.03.2027</td></tr>
+              <tr><td>3</td><td class="link">18.02.2026</td><td>Nora</td><td class="weglassbar">Laborpraxis Nord</td>
+                  <td class="r fett">96,40 €</td><td class="gezahlt">✓</td><td>18.02.2027</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 -->
+  <section class="szene" data-dauer="7000">
+    <div class="kicker">Bescheid hochladen</div>
+    <h2>Geprüft, ohne Taschenrechner.</h2>
+    <div class="posten">
+      <div class="pos"><span>Praxis am Stadtpark · 248,60 €</span>
+        <span class="betrag">161,59 €</span><span class="chip gruen">wie erwartet</span></div>
+      <div class="pos"><span>Zahnarzt Bergmann · 412,00 €</span>
+        <span class="betrag">267,80 €</span><span class="chip gruen">wie erwartet</span></div>
+      <div class="pos gekuerzt"><span>Laborpraxis Nord · 96,40 €</span>
+        <span class="betrag">41,10 €</span><span class="chip rot">gekürzt</span></div>
+    </div>
+    <p class="unter">Absender und Zugang erkennt die App selbst. Kürzungen fallen auf,
+      statt unterzugehen.</p>
+  </section>
+
+  <!-- 8 -->
+  <section class="szene links" data-dauer="5800">
+    <div class="kicker">Aufgaben</div>
+    <h2>Nichts läuft dir davon.</h2>
+    <div class="liste">
+      <div><span class="chip rot">3 Tage</span><span>Zahlung an die Praxis fällig</span></div>
+      <div><span class="chip gelb">6 Wochen</span><span>Ausschlussfrist der Beihilfe</span></div>
+      <div><span class="chip gelb">45 Tage</span><span>eingereicht, noch kein Bescheid</span></div>
+      <div><span class="chip gruen">erledigt</span><span>Papierrechnung kann abgelegt werden</span></div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="szene" data-dauer="5400">
+    <svg viewBox="0 0 24 24" style="width:calc(6.5*var(--u));height:calc(6.5*var(--u))" fill="none"
+         stroke="#60a5fa" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <rect x="4" y="10" width="16" height="11" rx="2.5"/>
+      <path d="M8 10V7a4 4 0 0 1 8 0v3"/>
+      <circle cx="12" cy="15.5" r="1.4" fill="#60a5fa" stroke="none"/>
+    </svg>
+    <h2>Alles bleibt auf deinem Rechner.</h2>
+    <p class="unter">Keine Cloud, kein Konto, kein Dienst im Netz. Der Server hört nur
+      auf diesem Gerät – die Daten deiner Familie gehen nirgendwo hin.</p>
+  </section>
+
+  <!-- 10 -->
+  <section class="szene" data-dauer="5800">
+    <svg viewBox="0 0 64 64" style="width:calc(9.5*var(--u));height:calc(9.5*var(--u))" aria-hidden="true">
+      <defs><linearGradient id="sl" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#1e40af"/></linearGradient></defs>
+      <rect width="64" height="64" rx="14" fill="url(#sl)"/>
+      <path d="M18 13h20l10 10v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z" fill="#fff"/>
+      <path d="M38 13l10 10H40a2 2 0 0 1-2-2z" fill="#bfdbfe"/>
+      <g fill="#93c5fd"><rect x="24" y="28" width="18" height="2.6" rx="1.3"/>
+      <rect x="24" y="34" width="14" height="2.6" rx="1.3"/></g>
+      <circle cx="41" cy="44" r="9.5" fill="#16a34a"/>
+      <path d="M36.6 44.2l3 3 5.4-5.8" fill="none" stroke="#fff" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="schluss">Arztrechnungen</div>
+    <p class="unter" style="font-size:calc(2.1*var(--u))">Feierabend für die Excel-Tabelle.</p>
+  </section>
+
+  <div class="kapitel" id="kapitel"></div>
+  <div class="hinweis" id="hinweis">Tippen für „von vorn"</div>
+</div>
+
+<script>
+(function () {
+  var szenen = Array.prototype.slice.call(document.querySelectorAll('.szene'));
+  var kapitel = document.getElementById('kapitel');
+  var hinweis = document.getElementById('hinweis');
+  var buehne = document.getElementById('buehne');
+
+  /* Kapitelleiste: ein Segment je Szene, gefüllt im Takt der Szenendauer. */
+  var fuellung = szenen.map(function () {
+    var b = document.createElement('b');
+    var i = document.createElement('i');
+    b.appendChild(i);
+    kapitel.appendChild(b);
+    return i;
+  });
+
+  var index = -1, start = 0, verstrichen = 0, laeuft = false, uhr = null, takte = [];
+
+  function nach(ms, fn) { takte.push(setTimeout(fn, ms)); }
+  function takteStoppen() { takte.forEach(clearTimeout); takte = []; }
+
+  /* Elemente, die innerhalb einer Szene nacheinander erscheinen. */
+  function staffeln(szene) {
+    szene.querySelectorAll('.feld').forEach(function (f, i) {
+      nach(700 + i * 520, function () { f.classList.add('gefuellt'); });
+    });
+    szene.querySelectorAll('.pos').forEach(function (p, i) {
+      nach(900 + i * 900, function () { p.classList.add('zeig'); });
+    });
+    szene.querySelectorAll('.liste div').forEach(function (p, i) {
+      nach(600 + i * 700, function () { p.classList.add('zeig'); });
+    });
+    /* Tabellenzeilen der App-Ansichten laufen von oben nach unten ein. */
+    szene.querySelectorAll('tbody tr').forEach(function (z, i) {
+      nach(900 + i * 260, function () { z.classList.add('zeig'); });
+    });
+  }
+
+  function leeren(szene) {
+    szene.querySelectorAll('.gefuellt').forEach(function (e) { e.classList.remove('gefuellt'); });
+    szene.querySelectorAll('.zeig').forEach(function (e) { e.classList.remove('zeig'); });
+  }
+
+  function segmentLaufen(i, restMs) {
+    fuellung[i].style.transition = 'width ' + restMs + 'ms linear';
+    fuellung[i].style.width = '100%';
+  }
+  function segmentAnhalten(i) {
+    var jetzt = getComputedStyle(fuellung[i]).width;
+    fuellung[i].style.transition = 'none';
+    fuellung[i].style.width = jetzt;
+  }
+
+  function naechste() {
+    if (index >= 0) {
+      szenen[index].classList.remove('an');
+      szenen[index].classList.add('raus');
+      fuellung[index].style.transition = 'none';
+      fuellung[index].style.width = '100%';
+    }
+    index++;
+    if (index >= szenen.length) { fertig(); return; }
+
+    var s = szenen[index];
+    takteStoppen();
+    s.classList.remove('raus');
+    leeren(s);
+    void s.offsetWidth;            // erzwingt den Neuaufbau, damit die Übergänge greifen
+    s.classList.add('an');
+    staffeln(s);
+
+    start = Date.now();
+    verstrichen = 0;
+    laeuft = true;
+    segmentLaufen(index, Number(s.dataset.dauer));
+    uhr = setTimeout(naechste, Number(s.dataset.dauer));
+  }
+
+  function fertig() {
+    index = szenen.length - 1;
+    szenen[index].classList.remove('raus');
+    szenen[index].classList.add('an');
+    laeuft = false;
+    hinweis.classList.add('zeigen');
+  }
+
+  function vonVorn() {
+    clearTimeout(uhr);
+    takteStoppen();
+    szenen.forEach(function (s) { s.classList.remove('an', 'raus'); leeren(s); });
+    fuellung.forEach(function (i) { i.style.transition = 'none'; i.style.width = '0'; });
+    hinweis.classList.remove('zeigen');
+    index = -1;
+    setTimeout(naechste, 200);
+  }
+
+  function umschalten() {
+    if (index >= szenen.length - 1 && !laeuft) { vonVorn(); return; }
+    if (laeuft) {
+      clearTimeout(uhr);
+      takteStoppen();
+      segmentAnhalten(index);
+      verstrichen = Date.now() - start;
+      laeuft = false;
+      hinweis.textContent = 'Tippen zum Weiterspielen';
+      hinweis.classList.add('zeigen');
+    } else {
+      var rest = Math.max(0, Number(szenen[index].dataset.dauer) - verstrichen);
+      start = Date.now() - verstrichen;
+      laeuft = true;
+      hinweis.classList.remove('zeigen');
+      hinweis.textContent = 'Tippen für „von vorn"';
+      segmentLaufen(index, rest);
+      uhr = setTimeout(naechste, rest);
+    }
+  }
+
+  /* Tippen und Klicken steuern gleich – auf dem Telefon gibt es kein Hover. */
+  buehne.addEventListener('click', umschalten);
+  document.addEventListener('keydown', function (e) {
+    if (e.key === ' ') { e.preventDefault(); umschalten(); }
+    if (e.key === 'r' || e.key === 'R') vonVorn();
+  });
+
+  /*
+   * Pausiert, wenn das Telefon gesperrt oder der Tab gewechselt wird – sonst läuft
+   * der Film im Hintergrund weiter und ist beim Zurückkommen vorbei.
+   */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden && laeuft) umschalten();
+  });
+
+  setTimeout(naechste, 500);
+})();
+</script>

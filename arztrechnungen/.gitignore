@@ -1,0 +1,26 @@
+node_modules/
+
+# Persönliche Daten – niemals versionieren
+backend/data/
+backend/uploads/
+muster/*
+!muster/HIER-ABLEGEN.txt
+
+# Build-Ergebnisse
+backend/dist/
+frontend/dist/
+
+# Auswertung des Belegbestands
+backend/.batch-cache/
+batch-report.json
+
+# Maschinenspezifisch: Verknüpfung zeigt auf einen festen Pfad
+/Arztrechnungen.lnk
+
+# Zwischenstand beim Schnüren der portablen Fassung
+/.bau-portabel/
+
+# Sonstiges
+*.log
+.DS_Store
+Thumbs.db

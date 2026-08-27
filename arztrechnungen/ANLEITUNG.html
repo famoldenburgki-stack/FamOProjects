@@ -1,0 +1,222 @@
+<title>Arztrechnungen einrichten</title>
+<style>
+  :root{
+    --brand:#2563eb; --brand-700:#1d4ed8; --brand-50:#eff6ff;
+    --grund:#ffffff; --papier:#f8fafc;
+    --text:#1e293b; --leise:#64748b; --linie:#e2e8f0;
+    --warn-grund:#fffbeb; --warn-linie:#fde68a; --warn-text:#92400e;
+  }
+  *{box-sizing:border-box; margin:0; padding:0}
+  body{
+    background:var(--papier); color:var(--text);
+    font-family:"Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    line-height:1.6; padding:2.5rem 1.25rem 5rem;
+  }
+  .blatt{max-width:46rem; margin:0 auto; display:grid; gap:1.75rem}
+
+  header{display:flex; align-items:center; gap:.9rem; margin-bottom:.25rem}
+  header svg{width:3rem; height:3rem; flex:none}
+  h1{font-size:1.9rem; font-weight:700; letter-spacing:-.02em; line-height:1.15}
+  .unterzeile{color:var(--leise); font-size:1.02rem; margin-top:.15rem}
+
+  section{background:var(--grund); border:1px solid var(--linie); border-radius:.85rem; padding:1.4rem 1.5rem}
+  h2{font-size:1.15rem; font-weight:700; margin-bottom:.6rem; letter-spacing:-.01em}
+  h3{font-size:1rem; font-weight:600; margin:1.1rem 0 .35rem}
+  p + p{margin-top:.6rem}
+  ul, ol{margin:.5rem 0 .2rem 1.25rem; display:grid; gap:.4rem}
+  code{
+    background:var(--papier); border:1px solid var(--linie); border-radius:.35rem;
+    padding:.08rem .35rem; font-family:Consolas, "Courier New", monospace; font-size:.92em;
+  }
+  strong{font-weight:600}
+  .leise{color:var(--leise); font-size:.94rem}
+
+  /* Die Schritte sind eine echte Reihenfolge - deshalb nummeriert. */
+  ol.schritte{list-style:none; margin-left:0; counter-reset:s; gap:1.1rem}
+  ol.schritte > li{counter-increment:s; display:grid; grid-template-columns:2rem 1fr; gap:.9rem}
+  ol.schritte > li::before{
+    content:counter(s); grid-row:span 2;
+    width:2rem; height:2rem; border-radius:50%;
+    background:var(--brand-50); color:var(--brand-700);
+    display:grid; place-items:center; font-weight:700; font-size:.95rem;
+  }
+  ol.schritte b{display:block; font-weight:600}
+
+  .hinweis{
+    background:var(--warn-grund); border:1px solid var(--warn-linie);
+    border-radius:.6rem; padding:.85rem 1rem; color:var(--warn-text); font-size:.96rem;
+  }
+  .box{background:var(--brand-50); border:1px solid #bfdbfe; border-radius:.6rem; padding:.85rem 1rem}
+  footer{color:var(--leise); font-size:.9rem; text-align:center}
+</style>
+
+<div class="blatt">
+
+  <header>
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#2563eb"/><stop offset="1" stop-color="#1e40af"/></linearGradient></defs>
+      <rect width="64" height="64" rx="14" fill="url(#g)"/>
+      <path d="M18 13h20l10 10v28a3 3 0 0 1-3 3H21a3 3 0 0 1-3-3V16a3 3 0 0 1 3-3z" fill="#fff"/>
+      <path d="M38 13l10 10H40a2 2 0 0 1-2-2z" fill="#bfdbfe"/>
+      <g fill="#93c5fd"><rect x="24" y="28" width="18" height="2.6" rx="1.3"/>
+      <rect x="24" y="34" width="14" height="2.6" rx="1.3"/></g>
+      <circle cx="41" cy="44" r="9.5" fill="#16a34a"/>
+      <path d="M36.6 44.2l3 3 5.4-5.8" fill="none" stroke="#fff" stroke-width="2.6"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <h1>Arztrechnungen</h1>
+      <div class="unterzeile">Testversion – so bekommst du sie zum Laufen</div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Was die App macht</h2>
+    <p>
+      Sie verwaltet Arztrechnungen für Haushalte, die <strong>beihilfeberechtigt und privat
+      versichert</strong> sind – also jede Rechnung zweimal einreichen müssen: bei der Beihilfe
+      und bei der Krankenversicherung.
+    </p>
+    <p>
+      Du lädst eine Rechnung hoch (oder legst sie in einen überwachten Ordner), die App liest
+      Arzt, Betrag, Datum und Patient selbst aus und legt beide Vorgänge an. Kommt später ein
+      Bescheid, lädst du ihn hoch: die App ordnet die Positionen den Rechnungen zu und sagt dir,
+      was voll erstattet und was gekürzt wurde. Dazu Fristen, Zahlungsziele und eine Statistik.
+    </p>
+    <p class="leise">
+      Alles läuft auf deinem Rechner. Es gibt kein Konto, keine Cloud und keinen Server im
+      Internet – die App fragt keinen fremden Dienst.
+    </p>
+  </section>
+
+  <section>
+    <h2>Einrichten</h2>
+    <ol class="schritte">
+      <li>
+        <b>Node.js installieren</b>
+        <span>
+          Einmalig nötig, damit die App laufen kann. Auf <code>nodejs.org</code> die
+          <strong>LTS</strong>-Version herunterladen und mit den Standardeinstellungen
+          installieren. Version 22 oder neuer.
+        </span>
+      </li>
+      <li>
+        <b>Ordner auf die eigene Festplatte kopieren</b>
+        <span>
+          Diesen ganzen Ordner an einen Ort deiner Wahl kopieren, zum Beispiel
+          <code>C:\Arztrechnungen</code>. Nicht in einem Cloud-Ordner laufen lassen – die
+          ständige Synchronisierung stört die Datenbank.
+        </span>
+      </li>
+      <li>
+        <b><code>Einrichten.cmd</code> doppelklicken</b>
+        <span>
+          Das Skript prüft Node.js, lädt die Bausteine und baut die App. Beim ersten Mal dauert
+          das ein paar Minuten. Am Ende liegt eine Verknüpfung auf dem Desktop, und du wirst
+          gefragt, ob die App künftig automatisch im Hintergrund bereitstehen soll.
+        </span>
+      </li>
+      <li>
+        <b>Haushalt und Ablageordner angeben</b>
+        <span>
+          Beim ersten Öffnen fragt die App, wer zum Haushalt gehört und wo die Belege abgelegt
+          werden sollen. Beides ist später jederzeit änderbar.
+        </span>
+      </li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Was du beim ersten Start eingibst</h2>
+
+    <h3>Personen und Beihilfesatz</h3>
+    <p>
+      Für jede Person den <strong>Beihilfesatz</strong> in Prozent – er steht auf jedem
+      Beihilfebescheid als „Bemessungssatz“. Typisch sind 50 % oder 70 % für Erwachsene und
+      80 % für Kinder, aber das hängt vom Dienstherrn und der Familiensituation ab: <em>bitte
+      im eigenen Bescheid nachsehen und nicht raten.</em> Den Rest übernimmt die private
+      Krankenversicherung.
+    </p>
+    <p>
+      Der <strong>Zugang</strong> ist die Person, über deren Anmeldung eingereicht wird. Kinder
+      laufen meist über ein Elternteil.
+    </p>
+
+    <h3>Ablageordner</h3>
+    <p>
+      Dorthin verschiebt die App jede erfasste Rechnung und jeden geprüften Bescheid, sortiert
+      nach Person und Jahr, benannt nach Datum, Arzt und Betrag. Am besten ein <strong>frischer,
+      leerer Ordner</strong>.
+    </p>
+
+    <h3>Was noch in den Einstellungen wartet</h3>
+    <ul>
+      <li><strong>Fristen:</strong> voreingestellt ist die hessische Beihilfe mit 12 Monaten
+        Ausschlussfrist. Andere Bundesländer haben andere Regeln – bitte prüfen.</li>
+      <li><strong>Portale:</strong> die Anmeldeseiten von Beihilfe und Versicherung. Ab Werk
+        stehen dort die hessische eBeihilfe und die DBV; trage ein, was für dich gilt.</li>
+      <li><strong>Behandlungsarten</strong> lassen sich umbenennen, löschen und ergänzen.</li>
+      <li><strong>Überwachter Ordner</strong> (optional): Legst du dort etwas ab, liest die App
+        es bei der nächsten Anmeldung ein – praktisch, um vom Handy aus zu scannen.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Was die App gut kann – und was nicht</h2>
+    <p>
+      Die Texterkennung wurde an über 300 echten Rechnungen und 138 Bescheiden entwickelt.
+      Rechnungsdatum und Patient trifft sie in über 90 % der Fälle, den Betrag in rund 90 %.
+      <strong>Sie füllt aber nur Vorschläge aus – bestätigt wird von Hand.</strong>
+    </p>
+    <div class="hinweis">
+      Zwei Bescheidformate sind gezielt eingelesen: die <strong>Beihilfe Hessen</strong>
+      (Regierungspräsidium Kassel) und die <strong>DBV-Leistungsabrechnung</strong>. Andere
+      Formate liest die App über allgemeine Regeln – das funktioniert, ist aber ungenauer.
+      Gerade dort lohnt ein prüfender Blick auf die Zuordnung.
+    </div>
+    <p style="margin-top:.8rem">
+      Das <strong>Einreichen selbst nimmt dir die App nicht ab</strong>. Sie legt die Belege
+      bereit, nennt Anzahl und Gesamtbetrag und öffnet das Portal – anmelden und absenden machst
+      du. Ein Skript, das sich selbst einloggt, wäre unzuverlässig und riskant.
+    </p>
+  </section>
+
+  <section>
+    <h2>Im Alltag</h2>
+    <ul>
+      <li><strong>Öffnen:</strong> Verknüpfung auf dem Desktop, oder
+        <code>http://localhost:4000</code> im Browser.</li>
+      <li><strong>Beenden:</strong> <code>Arztrechnungen beenden.cmd</code>. Nötig ist das
+        nicht – die App braucht kaum Speicher.</li>
+      <li><strong>Sichern:</strong> Der Ordner <code>backend\data</code> enthält die gesamte
+        Datenbank. Gelegentlich kopieren, dann ist alles gesichert.</li>
+    </ul>
+    <div class="box" style="margin-top:.9rem">
+      <strong>Zu den Daten:</strong> Die Datenbank enthält den vollständigen erkannten Text
+      jedes Dokuments – also auch Diagnosen und Versicherungsnummern. Sie gehört auf keinen
+      geteilten Datenträger und in keine Cloud. Die App selbst ist nur von deinem eigenen
+      Rechner aus erreichbar; eine Benutzeranmeldung hat sie nicht.
+    </div>
+  </section>
+
+  <section>
+    <h2>Wenn etwas klemmt</h2>
+    <ul>
+      <li><strong>Nichts öffnet sich:</strong> Läuft der Server? In
+        <code>backend\data\server.log</code> steht, was zuletzt passiert ist.</li>
+      <li><strong>„Node.js ist nicht installiert“:</strong> Nach der Installation von Node.js
+        Fenster schließen und <code>Einrichten.cmd</code> erneut starten.</li>
+      <li><strong>Texterkennung bei Fotos schlecht:</strong> gerade, gut ausgeleuchtet und
+        möglichst formatfüllend fotografieren. Ein PDF aus dem Portal ist immer besser als ein
+        Foto vom Bildschirm.</li>
+      <li><strong>Von vorn anfangen:</strong> <code>backend\data</code> löschen. Damit sind alle
+        erfassten Rechnungen weg – die abgelegten Dateien im Ablageordner bleiben.</li>
+    </ul>
+  </section>
+
+  <footer>
+    Rückmeldungen sind ausdrücklich erwünscht – besonders zu Bescheiden, die falsch gelesen
+    wurden.
+  </footer>
+</div>

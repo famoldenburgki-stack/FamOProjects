@@ -1,0 +1,21 @@
+{
+  "name": "arztrechnungen",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lokale Verwaltung von Arztrechnungen mit DBV- und Beihilfe-Einreichung",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "npm --workspace backend run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "build": "npm --workspace frontend run build && npm --workspace backend run build",
+    "start": "npm --workspace backend run start",
+    "analyse": "npm --workspace backend run analyse --"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}
