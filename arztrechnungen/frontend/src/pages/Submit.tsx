@@ -44,7 +44,7 @@ export default function Submit() {
       <div>
         <h1 className="text-lg font-semibold">Einreichen</h1>
         <p className="text-sm text-slate-600">
-          Alles, was noch bei Beihilfe oder DBV liegen bleibt – getrennt nach Zugang, weil du dich
+          Alles, was bei den beiden Stellen noch liegen bleibt – getrennt nach Zugang, weil du dich
           für jeden einzeln anmeldest. Die App legt die Belege bereit und hakt sie hinterher ab;
           anmelden und absenden machst du selbst im Portal.
         </p>

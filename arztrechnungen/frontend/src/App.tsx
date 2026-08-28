@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { api } from './api';
+import { setTargetLabels, targetLabel } from './format';
 import ArchiveSetup from './pages/ArchiveSetup';
 import HouseholdSetup from './pages/HouseholdSetup';
+import PortalSetup from './pages/PortalSetup';
+import { Spinner } from './components/ui';
 
 const NAV = [
   { to: '/', label: 'Übersicht', end: true },
@@ -19,8 +22,8 @@ export default function App() {
   const [openTasks, setOpenTasks] = useState<number | null>(null);
   const [inboxCount, setInboxCount] = useState<number>(0);
   /* Einrichtung beim ersten Start: erst der Haushalt, dann die Ablage. */
-  const [braucht, setBraucht] = useState<'haushalt' | 'ablage' | null | 'fertig'>(null);
-  const [links, setLinks] = useState<{ beihilfe: string; dbv: string }>({ beihilfe: '', dbv: '' });
+  const [braucht, setBraucht] = useState<'haushalt' | 'stellen' | 'ablage' | null | 'fertig'>(null);
+  const [portale, setPortale] = useState({ beihilfe: '', dbv: '', nameBeihilfe: '', nameDbv: '' });
   const [openError, setOpenError] = useState<string | null>(null);
   const location = useLocation();
 
@@ -36,27 +39,55 @@ export default function App() {
       .catch(() => setOpenTasks(null));
   }, [location.pathname]);
 
-  // Beim ersten Start ist noch kein Ablageordner festgelegt.
-  useEffect(() => {
+  // Beim ersten Start fehlen Haushalt, Stellen und Ablageordner noch.
+  const ladeEinstellungen = useCallback(() => {
     api
       .settings()
       .then((s) => {
         setBraucht(
           s.members.length === 0
             ? 'haushalt'
-            : !(s.settings.archive_root ?? '').trim()
-              ? 'ablage'
-              : 'fertig',
+            : !(s.settings.link_beihilfe ?? '').trim() && !(s.settings.link_versicherung ?? '').trim()
+              ? 'stellen'
+              : !(s.settings.archive_root ?? '').trim()
+                ? 'ablage'
+                : 'fertig',
         );
-        setLinks({
+        /*
+         * Die Namen der beiden Stellen einmal setzen, bevor Unterseiten
+         * gezeichnet werden – die greifen über targetLabel darauf zu.
+         */
+        setTargetLabels({
+          beihilfe: s.settings.label_beihilfe,
+          dbv: s.settings.label_versicherung,
+        });
+        setPortale({
           beihilfe: (s.settings.link_beihilfe ?? '').trim(),
-          dbv: (s.settings.link_dbv ?? '').trim(),
+          dbv: (s.settings.link_versicherung ?? '').trim(),
+          nameBeihilfe: (s.settings.label_beihilfe ?? 'Beihilfe').trim(),
+          nameDbv: (s.settings.label_versicherung ?? 'Versicherung').trim(),
         });
       })
       .catch(() => setBraucht('fertig'));
   }, []);
 
-  if (braucht === 'haushalt' || braucht === 'ablage') {
+  useEffect(ladeEinstellungen, [ladeEinstellungen]);
+
+  /*
+   * Solange die Einstellungen nicht da sind, wird nichts gezeichnet. Sonst
+   * erschiene für einen Moment die fertige App – auch beim allerersten Start,
+   * wo eigentlich die Einrichtung dran ist – und die Unterseiten trügen die
+   * Standardnamen der beiden Stellen statt der eingestellten.
+   */
+  if (braucht === null) {
+    return (
+      <div className="grid min-h-screen place-items-center">
+        <Spinner label="Einstellungen werden geladen …" />
+      </div>
+    );
+  }
+
+  if (braucht === 'haushalt' || braucht === 'stellen' || braucht === 'ablage') {
     return (
       <div className="min-h-screen">
         <header className="border-b border-slate-200 bg-white">
@@ -64,13 +95,23 @@ export default function App() {
             <img src="/icon.svg" alt="" className="h-7 w-7" />
             <span className="text-lg font-semibold tracking-tight">Arztrechnungen</span>
             <span className="text-sm text-slate-500">
-              Einrichtung · Schritt {braucht === 'haushalt' ? '1' : '2'} von 2
+              Einrichtung · Schritt {braucht === 'haushalt' ? '1' : braucht === 'stellen' ? '2' : '3'} von 3
             </span>
           </div>
         </header>
         <main className="mx-auto max-w-7xl px-4">
           {braucht === 'haushalt' ? (
-            <HouseholdSetup onDone={() => setBraucht('ablage')} />
+            <HouseholdSetup onDone={() => setBraucht('stellen')} />
+          ) : braucht === 'stellen' ? (
+            <PortalSetup
+              onDone={(namen) => {
+                setTargetLabels(namen);
+                // Erneut laden, damit die frisch eingetragenen Portale sofort
+                // als Knöpfe erscheinen und nicht erst nach einem Neuladen.
+                ladeEinstellungen();
+                setBraucht('ablage');
+              }}
+            />
           ) : (
             <>
               <ArchiveSetup onDone={() => setBraucht('fertig')} />
@@ -138,24 +179,24 @@ export default function App() {
             >
               📁 Ablage
             </button>
-            {links.beihilfe ? (
+            {portale.beihilfe ? (
               <a
                 className="rounded-lg border border-slate-300 px-2.5 py-1 text-sm text-slate-600 hover:bg-slate-50"
-                href={links.beihilfe}
+                href={portale.beihilfe}
                 target="_blank"
                 rel="noreferrer"
               >
-                Beihilfe ↗
+                {portale.nameBeihilfe} ↗
               </a>
             ) : null}
-            {links.dbv ? (
+            {portale.dbv ? (
               <a
                 className="rounded-lg border border-slate-300 px-2.5 py-1 text-sm text-slate-600 hover:bg-slate-50"
-                href={links.dbv}
+                href={portale.dbv}
                 target="_blank"
                 rel="noreferrer"
               >
-                DBV ↗
+                {portale.nameDbv} ↗
               </a>
             ) : null}
           </div>

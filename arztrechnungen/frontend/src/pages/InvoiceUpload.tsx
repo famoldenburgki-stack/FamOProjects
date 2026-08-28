@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import { money, todayIso } from '../format';
+import { money, targetLabel, todayIso } from '../format';
 import { Alert, Field, Spinner } from '../components/ui';
 import { LocalPreview } from '../components/DocumentView';
 import type { AnalyzeResult, Member } from '../types';
@@ -355,8 +355,8 @@ export default function InvoiceUpload() {
 
           {preview ? (
             <Alert kind="info" title="Erwartete Erstattung">
-              Beihilfe {Math.round((member?.beihilfe_rate ?? 0) * 100)} %: {money(preview.beihilfe)} ·
-              DBV: {money(preview.dbv)} · Einreichung über Zugang <strong>{member?.account}</strong>
+              {targetLabel('beihilfe')} {Math.round((member?.beihilfe_rate ?? 0) * 100)} %: {money(preview.beihilfe)} ·
+              {targetLabel('dbv')}: {money(preview.dbv)} · Einreichung über Zugang <strong>{member?.account}</strong>
             </Alert>
           ) : null}
 
@@ -368,7 +368,7 @@ export default function InvoiceUpload() {
                 checked={form.submit_beihilfe}
                 onChange={(e) => set('submit_beihilfe', e.target.checked)}
               />
-              Beihilfe ({todayIso().split('-').reverse().join('.')})
+              {targetLabel('beihilfe')} ({todayIso().split('-').reverse().join('.')})
             </label>
             <label className="flex items-center gap-2 text-sm">
               <input
@@ -376,7 +376,7 @@ export default function InvoiceUpload() {
                 checked={form.submit_dbv}
                 onChange={(e) => set('submit_dbv', e.target.checked)}
               />
-              DBV
+              {targetLabel('dbv')}
             </label>
           </div>
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { db, getSettingNumber } from '../db.js';
+import { db, getSettingNumber, targetLabel } from '../db.js';
 import { daysSince, daysUntil, deadlineFor, listInvoices } from '../calc.js';
 import { countInbox } from '../inbox.js';
 import type { InvoiceDetail, Target } from '../types.js';
@@ -20,7 +20,6 @@ export interface ReminderEntry {
   severity: 'kritisch' | 'warnung' | 'info';
 }
 
-const targetLabel = (t: Target) => (t === 'dbv' ? 'DBV' : 'Beihilfe');
 const fmt = (n: number) =>
   `${n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
 const fmtDate = (iso: string) => iso.slice(0, 10).split('-').reverse().join('.');

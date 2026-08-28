@@ -14,7 +14,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { Router } from 'express';
-import { db } from '../db.js';
+import { db, targetLabel } from '../db.js';
 import { deadlineFor, listInvoices, round2 } from '../calc.js';
 import { getArchiveRoot, resolveStoredPath } from '../archive.js';
 import { TARGETS, type Target } from '../types.js';
@@ -22,7 +22,6 @@ import { TARGETS, type Target } from '../types.js';
 export const submitRouter = Router();
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
-const targetLabel = (t: Target) => (t === 'dbv' ? 'DBV' : 'Beihilfe');
 
 export interface SubmitItem {
   submission_id: number;

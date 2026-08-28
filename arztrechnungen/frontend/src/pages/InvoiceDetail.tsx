@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api } from '../api';
-import { date, money } from '../format';
+import { date, money, targetLabel } from '../format';
 import { Alert, Field, OverallBadge, PaymentDue, Spinner } from '../components/ui';
 import SubmissionCard from '../components/SubmissionCard';
 import { DocumentDialog } from '../components/DocumentView';
@@ -328,7 +328,7 @@ export default function InvoiceDetail() {
               <tbody className="divide-y divide-slate-100">
                 {invoice.decision_items.map((it) => (
                   <tr key={it.id}>
-                    <td className="td">{it.target === 'dbv' ? 'DBV' : 'Beihilfe'}</td>
+                    <td className="td">{it.target ? targetLabel(it.target) : '–'}</td>
                     <td className="td">{date(it.d_date)}</td>
                     <td className="td">{date(it.invoice_date)}</td>
                     <td className="td">
@@ -354,7 +354,7 @@ export default function InvoiceDetail() {
                         onClick={() =>
                           setShowDecision({
                             id: it.decision_id,
-                            titel: `${it.target === 'dbv' ? 'DBV' : 'Beihilfe'} · Bescheid vom ${date(it.d_date)}`,
+                            titel: `${it.target ? targetLabel(it.target) : '–'} · Bescheid vom ${date(it.d_date)}`,
                           })
                         }
                       >

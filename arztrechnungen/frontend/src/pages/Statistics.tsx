@@ -11,7 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 import { api } from '../api';
-import { money } from '../format';
+import { money, targetLabel } from '../format';
 import { Alert, EmptyState, Spinner } from '../components/ui';
 import { CHART, SERIES, STATUS, axisProps, eur, eurExact } from '../components/charts';
 import type { Stats } from '../types';
@@ -87,7 +87,7 @@ export default function Statistics() {
       <div className="card">
         <h2 className="font-semibold">Kostenentwicklung pro Jahr</h2>
         <p className="mb-4 text-sm text-slate-500">
-          Aufgeteilt nach Erstattung durch Beihilfe, DBV und dem selbst getragenen Anteil
+          Aufgeteilt nach der Erstattung beider Stellen und dem selbst getragenen Anteil
           (Eigenanteil erst gezählt, wenn beide Stellen entschieden haben).
         </p>
         <div className="h-72 w-full">
@@ -101,8 +101,8 @@ export default function Statistics() {
                 contentStyle={{ borderRadius: 8, border: `1px solid ${CHART.grid}`, fontSize: 13 }}
               />
               <Legend wrapperStyle={{ fontSize: 13, color: CHART.text }} />
-              <Bar dataKey="paid_beihilfe" name="Beihilfe erstattet" stackId="a" fill={SERIES[0]} stroke={CHART.surface} strokeWidth={2} />
-              <Bar dataKey="paid_dbv" name="DBV erstattet" stackId="a" fill={SERIES[2]} stroke={CHART.surface} strokeWidth={2} />
+              <Bar dataKey="paid_beihilfe" name={`${targetLabel('beihilfe')} erstattet`} stackId="a" fill={SERIES[0]} stroke={CHART.surface} strokeWidth={2} />
+              <Bar dataKey="paid_dbv" name={`${targetLabel('dbv')} erstattet`} stackId="a" fill={SERIES[2]} stroke={CHART.surface} strokeWidth={2} />
               <Bar
                 dataKey="own_share"
                 name="selbst getragen"
@@ -122,8 +122,8 @@ export default function Statistics() {
                 <th className="th text-left">Jahr</th>
                 <th className="th text-right">Rechnungen</th>
                 <th className="th text-right">Summe</th>
-                <th className="th text-right">Beihilfe</th>
-                <th className="th text-right">DBV</th>
+                <th className="th text-right">{targetLabel('beihilfe')}</th>
+                <th className="th text-right">{targetLabel('dbv')}</th>
                 <th className="th text-right">erstattet</th>
                 <th className="th text-right">selbst getragen</th>
               </tr>
@@ -248,9 +248,9 @@ export default function Statistics() {
 
       {/* --- Beitragsrückerstattung --- */}
       <div className="card">
-        <h2 className="font-semibold">Beitragsrückerstattung (DBV) – Stand {new Date().getFullYear()}</h2>
+        <h2 className="font-semibold">Beitragsrückerstattung ({targetLabel('dbv')}) – Stand {new Date().getFullYear()}</h2>
         <p className="mb-4 text-sm text-slate-500">
-          Summe der bei der DBV eingereichten Erstattungsansprüche gegen die Schwelle deines Tarifs.
+          Summe der bei {targetLabel('dbv')} eingereichten Erstattungsansprüche gegen die Schwelle deines Tarifs.
           Schwellen trägst du in den Einstellungen pro Person ein.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

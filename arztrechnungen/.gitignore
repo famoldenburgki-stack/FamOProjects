@@ -24,3 +24,6 @@ batch-report.json
 *.log
 .DS_Store
 Thumbs.db
+
+# Auswertung der Sitzungen – enthält persönliche Eingaben
+/bauprotokoll.html

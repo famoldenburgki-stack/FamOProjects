@@ -184,6 +184,24 @@ ensureColumns('decision_items', {
 db.exec('DROP TABLE IF EXISTS notifications');
 db.prepare("DELETE FROM settings WHERE key = 'notify_email'").run();
 
+/*
+ * Früher hieß die Einstellung "link_dbv" und die Versicherung war fest als DBV
+ * angenommen. Bestehende Installationen behalten ihre Adresse und ihren Namen –
+ * sonst hießen plötzlich alle Knöpfe anders als die abgelegten Dateien.
+ */
+const altesFeld = db.prepare("SELECT value FROM settings WHERE key = 'link_dbv'").get() as
+  | { value: string }
+  | undefined;
+if (altesFeld) {
+  db.prepare(
+    "INSERT INTO settings (key, value) VALUES ('link_versicherung', ?) ON CONFLICT(key) DO NOTHING",
+  ).run(altesFeld.value);
+  db.prepare(
+    "INSERT INTO settings (key, value) VALUES ('label_versicherung', 'DBV') ON CONFLICT(key) DO NOTHING",
+  ).run();
+  db.prepare("DELETE FROM settings WHERE key = 'link_dbv'").run();
+}
+
 /* ---------- Seed ---------- */
 
 const DEFAULT_SETTINGS: Record<string, string> = {
@@ -196,11 +214,12 @@ const DEFAULT_SETTINGS: Record<string, string> = {
   tolerance_eur: '1.00',            // Abweichung, die noch als "voll erstattet" gilt
   currency: 'EUR',
   // Anmeldeseiten der beiden Stellen – für den Sprung ins Portal beim Einreichen
-  link_beihilfe: 'https://ebeihilfe.hessen.de/anmelden',
-  // Weiterleitung der DBV auf die My-AXA-Anmeldung; sie erzeugt den nötigen
-  // Sitzungstoken bei jedem Aufruf neu. Ein direkt kopierter entry.axa.de-Link
-  // mit RequestedPage läuft ab und endet in einem 403.
-  link_dbv: 'https://www.dbv.de/site/dbv-de/redirect/MyAxaLogin',
+  // Wie die beiden Stellen heißen – erscheint auf Knöpfen, in Listen und in
+  // den Dateinamen der Ablage. Beim ersten Start abgefragt.
+  label_beihilfe: 'Beihilfe',
+  label_versicherung: 'Versicherung',
+  link_beihilfe: '',
+  link_versicherung: '',
   inbox_folder: '',                 // überwachter Ordner, leer = Automatik aus
 };
 
@@ -255,4 +274,15 @@ export function setSetting(key: string, value: string): void {
   db.prepare(
     'INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value',
   ).run(key, value);
+}
+
+/**
+ * Wie die Stelle heißt, an die eingereicht wird. Frei wählbar, weil nicht jeder
+ * bei derselben Versicherung ist und nicht jede Beihilfestelle gleich heißt.
+ */
+export function targetLabel(target: 'dbv' | 'beihilfe'): string {
+  const s = getSettings();
+  return target === 'dbv'
+    ? (s.label_versicherung || 'Versicherung').trim()
+    : (s.label_beihilfe || 'Beihilfe').trim();
 }

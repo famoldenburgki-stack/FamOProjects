@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
-import { OVERALL_LABEL, date, daysUntil, money } from '../format';
+import { OVERALL_LABEL, date, daysUntil, money, targetLabel } from '../format';
 import { Alert, EmptyState, OverallBadge, PaymentDue, Spinner, Stat, StatusBadge } from '../components/ui';
 import { DocumentDialog } from '../components/DocumentView';
 import { SortableTh, compareValues, type SortState } from '../components/SortableTh';
@@ -101,7 +101,7 @@ export default function Dashboard() {
       amount: list.reduce((s, i) => s + i.amount, 0),
       paid: list.reduce((s, i) => s + i.paid_total, 0),
       open: list.reduce((s, i) => s + i.open_amount, 0),
-      // Was noch an die Ärzte geht – unabhängig davon, was Beihilfe und DBV erstatten.
+      // Was noch an die Ärzte geht – unabhängig davon, was die beiden Stellen erstatten.
       unbezahlt: list.filter((i) => !i.paid_to_doctor_date).reduce((s, i) => s + i.amount, 0),
     };
   }, [sichtbar]);
@@ -343,8 +343,8 @@ export default function Dashboard() {
                     <SortableTh label="Nummer" sortKey="invoice_number" sort={sort} onSort={onSort} />
                     <SortableTh label="Betrag" sortKey="amount" sort={sort} onSort={onSort} align="right" />
                     <SortableTh label="Zahlung" sortKey="payment" sort={sort} onSort={onSort} />
-                    <SortableTh label="Beihilfe" sortKey="beihilfe" sort={sort} onSort={onSort} />
-                    <SortableTh label="DBV" sortKey="dbv" sort={sort} onSort={onSort} />
+                    <SortableTh label={targetLabel('beihilfe')} sortKey="beihilfe" sort={sort} onSort={onSort} />
+                    <SortableTh label={targetLabel('dbv')} sortKey="dbv" sort={sort} onSort={onSort} />
                     <SortableTh label="Erstattet" sortKey="paid_total" sort={sort} onSort={onSort} align="right" />
                     <SortableTh label="Offen" sortKey="open_amount" sort={sort} onSort={onSort} align="right" />
                     <SortableTh label="Gesamt" sortKey="overall_status" sort={sort} onSort={onSort} />

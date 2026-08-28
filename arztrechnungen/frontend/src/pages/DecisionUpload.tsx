@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ApiError, api } from '../api';
-import { date, money } from '../format';
+import { date, money, targetLabel } from '../format';
 import { Alert, Field, Spinner, Stat } from '../components/ui';
 import type { DecisionResult, Member, ProcessedItem } from '../types';
 import DecisionList from './Decisions';
@@ -67,7 +67,7 @@ export default function DecisionUpload() {
         <div>
           <h1 className="text-lg font-semibold">Bescheid hochladen und prüfen</h1>
           <p className="mt-1 text-sm text-slate-600">
-            Datei auswählen, fertig. Ob der Bescheid von der Beihilfe oder der DBV kommt und über
+            Datei auswählen, fertig. Von welcher der beiden Stellen der Bescheid kommt und über
             welchen Zugang er kam, erkennt die App selbst; sie liest die Positionen aus, ordnet sie
             den eingereichten Rechnungen zu, vergleicht die Erstattung mit dem erwarteten Betrag und
             meldet dir das Ergebnis. Nachgefragt wird nur, wenn der Absender im Dokument nicht
@@ -98,8 +98,8 @@ export default function DecisionUpload() {
                   onChange={(e) => setTarget(e.target.value as '' | 'beihilfe' | 'dbv')}
                 >
                   <option value="">bitte wählen</option>
-                  <option value="beihilfe">Beihilfe (Hessen)</option>
-                  <option value="dbv">DBV</option>
+                  <option value="beihilfe">{targetLabel('beihilfe')}</option>
+                  <option value="dbv">{targetLabel('dbv')}</option>
                 </select>
               </Field>
               <Field

@@ -11,7 +11,7 @@
  */
 import fs from 'node:fs';
 import path from 'node:path';
-import { getSettings, setSetting } from './db.js';
+import { getSettings, setSetting, targetLabel } from './db.js';
 import { BACKEND_ROOT } from './paths.js';
 
 export const ARCHIVE_ROOT_KEY = 'archive_root';
@@ -142,7 +142,7 @@ export interface DecisionArchiveTarget {
 export function decisionArchivePathFor(root: string, t: DecisionArchiveTarget): string {
   const year = (t.decisionDate ?? new Date().toISOString().slice(0, 10)).slice(0, 4);
   const datePart = t.decisionDate ?? 'ohne Datum';
-  const absender = t.target === 'dbv' ? 'DBV' : 'Beihilfe';
+  const absender = targetLabel(t.target);
   const betrag = t.totalPaid !== null ? ` ${t.totalPaid.toFixed(2).replace('.', ',')} EUR` : '';
 
   const fileName = `${datePart} ${absender}${betrag}${t.extension}`;

@@ -385,6 +385,11 @@ check(
 );
 
 const { decisionArchivePathFor } = await import('../archive.js');
+const { setSetting } = await import('../db.js');
+
+// Beschriftung der beiden Stellen festlegen: sie landet im Dateinamen.
+setSetting('label_beihilfe', 'Beihilfe');
+setSetting('label_versicherung', 'DBV');
 
 check(
   'Zielpfad eines Beihilfebescheids',
@@ -400,7 +405,7 @@ check(
 );
 
 check(
-  'Zielpfad eines DBV-Bescheids ohne Betrag',
+  'Zielpfad eines Versicherungsbescheids ohne Betrag',
   path.basename(
     decisionArchivePathFor(archiveRoot, {
       account: 'Nora',

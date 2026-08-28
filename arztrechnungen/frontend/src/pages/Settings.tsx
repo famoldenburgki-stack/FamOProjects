@@ -1,19 +1,19 @@
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import { money } from '../format';
+import { money, setTargetLabels, targetLabel } from '../format';
 import { Alert, Field, Spinner } from '../components/ui';
 import type { CategoryInfo, IssuerPattern, Member } from '../types';
 import ArchiveSetup from './ArchiveSetup';
 
-const SETTING_FIELDS: { key: string; label: string; hint: string }[] = [
+const settingFields = (): { key: string; label: string; hint: string }[] => [
   {
     key: 'deadline_beihilfe_months',
-    label: 'Ausschlussfrist Beihilfe (Monate)',
+    label: `Ausschlussfrist ${targetLabel('beihilfe')} (Monate)`,
     hint: 'In Hessen üblich: 12 Monate ab Rechnungsdatum. 0 = keine Frist überwachen.',
   },
   {
     key: 'deadline_dbv_months',
-    label: 'Frist DBV (Monate)',
+    label: `Frist ${targetLabel('dbv')} (Monate)`,
     hint: 'Konservativ 24 Monate. 0 = keine Frist überwachen.',
   },
   {
@@ -54,6 +54,24 @@ export default function Settings() {
   const [categories, setCategories] = useState<CategoryInfo[]>([]);
   const [neueArt, setNeueArt] = useState('');
   const [eingangOrdner, setEingangOrdner] = useState('');
+
+  /*
+   * Namen und Adressen der beiden Stellen. Eine Adresse ohne "https://" führt
+   * beim Anklicken ins Leere – deshalb wird sie hier ergänzt.
+   */
+  async function speicherePortal(key: string, wert: string) {
+    const fertig =
+      key.startsWith('link_') && wert && !/^https?:\/\//i.test(wert) ? `https://${wert}` : wert;
+    if (fertig === (settings?.[key] ?? '') && !key.startsWith('link_')) return;
+    try {
+      const neu = await api.updateSettings({ [key]: fertig });
+      setSettings(neu);
+      setTargetLabels({ beihilfe: neu.label_beihilfe, dbv: neu.label_versicherung });
+      flash('Gespeichert.');
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }
 
   async function speichereEingang(create: boolean, wert?: string) {
     try {
@@ -167,7 +185,7 @@ export default function Settings() {
       <div className="card">
         <h2 className="font-semibold">Familie &amp; Beihilfesätze</h2>
         <p className="mb-4 text-sm text-slate-500">
-          Der Beihilfesatz bestimmt die erwartete Erstattung: Beihilfe zahlt diesen Anteil, die DBV
+          Der Beihilfesatz bestimmt die erwartete Erstattung: die Beihilfestelle zahlt diesen Anteil, die Versicherung
           den Rest. Der Zugang legt fest, über welche App-Anmeldung eingereicht wird – danach werden
           auch Bescheide zugeordnet.
         </p>
@@ -178,7 +196,7 @@ export default function Settings() {
                 <th className="th">Name</th>
                 <th className="th">Rolle</th>
                 <th className="th">Beihilfesatz</th>
-                <th className="th">DBV-Anteil</th>
+                <th className="th">{targetLabel('dbv')}-Anteil</th>
                 <th className="th">Zugang</th>
                 <th className="th">BRE-Schwelle (€)</th>
                 <th className="th">Aktiv</th>
@@ -307,7 +325,7 @@ export default function Settings() {
           maßgeblich ist immer die Regelung deines Dienstherrn bzw. Tarifs.
         </p>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {SETTING_FIELDS.map((f) => (
+          {settingFields().map((f) => (
             <Field key={f.key} label={f.label} hint={f.hint}>
               <input
                 className="input"
@@ -455,48 +473,61 @@ export default function Settings() {
       </div>
 
       <div className="card">
-        <h2 className="font-semibold">Portale zum Einreichen</h2>
+        <h2 className="font-semibold">Stellen &amp; Portale</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Die Anmeldeseiten von Beihilfe und DBV. Sie stehen oben rechts in der Kopfzeile als
-          Knopf bereit – zusammen mit dem Sprung in den Ablageordner, aus dem du die Belege
-          hochlädst. Ändert sich eine Adresse, kannst du sie hier anpassen.
+          Wie deine Beihilfestelle und deine Krankenversicherung heißen und wo du dich dort
+          anmeldest. Die Namen erscheinen auf den Knöpfen oben rechts, in allen Listen und in
+          den Namen der abgelegten Dateien. Änderst du einen Namen, gilt er ab sofort – bereits
+          abgelegte Dateien behalten ihren alten Namen.
         </p>
-        <div className="mt-3 space-y-3">
+        <div className="mt-4 grid gap-5 sm:grid-cols-2">
           {[
-            { key: 'link_beihilfe', label: 'Beihilfe (Anmeldung)' },
-            { key: 'link_dbv', label: 'DBV / AXA (Anmeldung)' },
-          ].map((feld) => (
-            <Field key={feld.key} label={feld.label}>
-              <div className="flex flex-wrap gap-2">
+            {
+              titel: 'Beihilfestelle',
+              nameKey: 'label_beihilfe',
+              linkKey: 'link_beihilfe',
+              nameHint: 'z.B. Beihilfe, Regierungspräsidium, Bezügestelle',
+            },
+            {
+              titel: 'Krankenversicherung',
+              nameKey: 'label_versicherung',
+              linkKey: 'link_versicherung',
+              nameHint: 'z.B. DBV, Debeka, Signal Iduna',
+            },
+          ].map((stelle) => (
+            <div key={stelle.nameKey} className="space-y-3 rounded-lg border border-slate-200 p-4">
+              <h3 className="font-medium">{stelle.titel}</h3>
+              <Field label="Name" hint={stelle.nameHint}>
                 <input
-                  className="input min-w-0 flex-1"
-                  value={settings[feld.key] ?? ''}
-                  onChange={(e) => setSettings({ ...settings, [feld.key]: e.target.value })}
-                  onBlur={(e) => {
-                    api
-                      .updateSettings({ [feld.key]: e.target.value.trim() })
-                      .then((neu) => {
-                        setSettings(neu);
-                        flash('Adresse gespeichert.');
-                      })
-                      .catch((err: Error) => setError(err.message));
-                  }}
-                  placeholder="https://…"
+                  className="input"
+                  value={settings[stelle.nameKey] ?? ''}
+                  onChange={(e) => setSettings({ ...settings, [stelle.nameKey]: e.target.value })}
+                  onBlur={(e) => speicherePortal(stelle.nameKey, e.target.value.trim())}
                 />
-                {settings[feld.key] ? (
-                  <a
-                    className="btn-secondary"
-                    href={settings[feld.key]}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    öffnen ↗
-                  </a>
-                ) : null}
-              </div>
-            </Field>
+              </Field>
+              <Field label="Anmeldeseite">
+                <div className="flex flex-wrap gap-2">
+                  <input
+                    className="input min-w-0 flex-1"
+                    value={settings[stelle.linkKey] ?? ''}
+                    placeholder="https://…"
+                    onChange={(e) => setSettings({ ...settings, [stelle.linkKey]: e.target.value })}
+                    onBlur={(e) => speicherePortal(stelle.linkKey, e.target.value.trim())}
+                  />
+                  {settings[stelle.linkKey] ? (
+                    <a className="btn-secondary" href={settings[stelle.linkKey]} target="_blank" rel="noreferrer">
+                      öffnen ↗
+                    </a>
+                  ) : null}
+                </div>
+              </Field>
+            </div>
           ))}
         </div>
+        <Alert kind="info">
+          Nimm die <strong>Anmeldeseite</strong>, nicht die Adresse aus dem bereits angemeldeten
+          Portal – die enthält oft einen Sitzungsschlüssel, der abläuft.
+        </Alert>
       </div>
 
       <div className="card">

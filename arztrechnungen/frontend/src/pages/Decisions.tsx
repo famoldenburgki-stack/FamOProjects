@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from '../api';
-import { date, money } from '../format';
+import { date, money, targetLabel } from '../format';
 import { Alert, EmptyState, Spinner, Stat } from '../components/ui';
 import { DocumentDialog } from '../components/DocumentView';
 import { SortableTh, compareValues, type SortState } from '../components/SortableTh';
@@ -11,7 +11,7 @@ type SortKey = 'decision_date' | 'target' | 'account' | 'total_paid' | 'item_cou
 const dateiName = (p: string | null) => (p ? p.split(/[\\/]/).pop() ?? '' : '');
 
 /**
- * Übersicht aller eingelesenen Bescheide von Beihilfe und DBV. Sitzt unterhalb
+ * Übersicht aller eingelesenen Bescheide beider Stellen. Sitzt unterhalb
  * des Uploads auf derselben Seite – zwei getrennte Listen wären dasselbe zweimal.
  */
 export default function DecisionList({ reload }: { reload?: number }) {
@@ -61,7 +61,7 @@ export default function DecisionList({ reload }: { reload?: number }) {
     setSort((s) => ({ key, dir: s.key === key && s.dir === 'asc' ? 'desc' : 'asc' }));
 
   async function entfernen(d: DecisionSummary) {
-    const stelle = d.target === 'beihilfe' ? 'Beihilfe' : 'DBV';
+    const stelle = targetLabel(d.target);
     /*
      * Ehrlich benennen, was passiert: Beträge, die dieser Bescheid schon in die
      * Rechnungen geschrieben hat, bleiben dort stehen – die App kennt keine
@@ -92,8 +92,8 @@ export default function DecisionList({ reload }: { reload?: number }) {
       {hinweis ? <Alert kind="success">{hinweis}</Alert> : null}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Bescheide Beihilfe" value={summen.bh} sub={`${money(summen.bhSum)} ausgewiesen`} />
-        <Stat label="Bescheide DBV" value={summen.dbv} sub={`${money(summen.dbvSum)} ausgewiesen`} />
+        <Stat label={`Bescheide ${targetLabel('beihilfe')}`} value={summen.bh} sub={`${money(summen.bhSum)} ausgewiesen`} />
+        <Stat label={`Bescheide ${targetLabel('dbv')}`} value={summen.dbv} sub={`${money(summen.dbvSum)} ausgewiesen`} />
         <Stat label="Erfasste Positionen" value={gefiltert.reduce((s, d) => s + d.item_count, 0)} />
         <Stat
           label="Ohne Rechnung"
@@ -106,7 +106,7 @@ export default function DecisionList({ reload }: { reload?: number }) {
         <div>
           <h1 className="text-lg font-semibold">Vorliegende Bescheide</h1>
           <p className="text-sm text-slate-600">
-            Alle eingelesenen Bescheide von Beihilfe und DBV. Über <em>ansehen</em> öffnet sich das
+            Alle eingelesenen Bescheide beider Stellen. Über <em>ansehen</em> öffnet sich das
             Original, über das Datum die Auswertung mit allen Positionen.
           </p>
         </div>
@@ -116,8 +116,8 @@ export default function DecisionList({ reload }: { reload?: number }) {
             <label className="label">Absender</label>
             <select className="input" value={absender} onChange={(e) => setAbsender(e.target.value)}>
               <option value="">alle</option>
-              <option value="beihilfe">Beihilfe</option>
-              <option value="dbv">DBV</option>
+              <option value="beihilfe">{targetLabel('beihilfe')}</option>
+              <option value="dbv">{targetLabel('dbv')}</option>
             </select>
           </div>
           <div className="w-32">
@@ -166,7 +166,7 @@ export default function DecisionList({ reload }: { reload?: number }) {
                             : 'bg-emerald-50 text-emerald-700'
                         }`}
                       >
-                        {d.target === 'beihilfe' ? 'Beihilfe' : 'DBV'}
+                        {targetLabel(d.target)}
                       </span>
                     </td>
                     <td className="td">{d.account}</td>
@@ -211,7 +211,7 @@ export default function DecisionList({ reload }: { reload?: number }) {
         <DocumentDialog
           src={`/api/decisions/${ansicht.id}/file`}
           name={ansicht.file_path}
-          title={`${ansicht.target === 'beihilfe' ? 'Beihilfe' : 'DBV'} · Bescheid vom ${date(ansicht.decision_date)}`}
+          title={`${targetLabel(ansicht.target)} · Bescheid vom ${date(ansicht.decision_date)}`}
           onClose={() => setAnsicht(null)}
         />
       ) : null}

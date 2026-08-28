@@ -2,7 +2,7 @@
 
 Lokale Verwaltung von Arztrechnungen für eine privat versicherte, beihilfeberechtigte
 Familie. Ersetzt die Excel-Tabelle und den Stempel auf der Papierrechnung: Rechnungen
-werden hochgeladen und automatisch ausgelesen, Einreichungen bei DBV und Beihilfe
+werden hochgeladen und automatisch ausgelesen, Einreichungen bei Beihilfe und Versicherung
 getrennt verfolgt, und erhaltene Bescheide werden hochgeladen, automatisch den
 Rechnungen zugeordnet und gegen die erwartete Erstattung geprüft.
 
@@ -58,8 +58,8 @@ Symbol-Zwischenspeicher aktualisiert wird.
 **Rechnung hochladen** – PDF oder Foto auswählen (auch mehrere auf einmal). Arzt,
 Rechnungsnummer, Rechnungs- und Behandlungsdatum, Betrag und Behandlungsart werden
 ausgelesen und vorausgefüllt; der Patient wird anhand des Namens im Dokument erkannt.
-Du prüfst kurz und speicherst. Die App legt automatisch beide Vorgänge an (Beihilfe
-und DBV) und berechnet die erwartete Erstattung aus dem Beihilfesatz der Person.
+Du prüfst kurz und speicherst. Die App legt automatisch beide Vorgänge an (Beihilfestelle
+und Versicherung) und berechnet die erwartete Erstattung aus dem Beihilfesatz der Person.
 
 **Zahlungsfrist** – Steht auf der Rechnung ein Zahlungsziel („zahlbar bis 15.03.2026“,
 „innerhalb von 14 Tagen“, „sofort ohne Abzug“), liest die App es mit und trägt es als
@@ -70,23 +70,34 @@ einer Woche vorher, rot wenn die Frist verstrichen ist. Die Kennzahl *Noch an Ä
 zahlen* nennt die Summe, das Häkchen *nur unbezahlte* filtert danach. Fällige Zahlungen
 stehen zuoberst in den Aufgaben.
 
-**Einreichen** – Das eigentliche Einreichen passiert weiterhin in den Apps von DBV und
-Beihilfe; dafür gibt es keine Schnittstelle. In dieser App klickst du danach
+**Einreichen** – Das eigentliche Einreichen passiert weiterhin in den Portalen der beiden
+Stellen; dafür gibt es keine Schnittstelle. In dieser App klickst du danach
 „Heute eingereicht“ – das ersetzt den Stempel auf dem Papier.
 
 Für den Weg dorthin sitzen oben rechts drei Knöpfe: **📁 Ablage** öffnet den
-Ablageordner im Explorer, **Beihilfe ↗** und **DBV ↗** die Anmeldeseiten der beiden
-Portale. In der einzelnen Rechnung zeigt *📁 Im Ordner zeigen* den Beleg markiert im
-Explorer – von dort direkt ins Portal hochladen. Die beiden Adressen lassen sich unter
-*Einstellungen → Portale zum Einreichen* ändern.
+Ablageordner im Explorer, daneben je ein Knopf für die Anmeldeseiten der beiden
+Stellen. In der einzelnen Rechnung zeigt *📁 Im Ordner zeigen* den Beleg markiert im
+Explorer – von dort direkt ins Portal hochladen.
 
-Eingetragen sind `https://ebeihilfe.hessen.de/anmelden` und
-`https://www.dbv.de/site/dbv-de/redirect/MyAxaLogin`. Wichtig bei der DBV: nicht die
-Adresse aus der Adressleiste des angemeldeten Portals kopieren – die enthält einen
-Sitzungstoken (`entry.axa.de/sls-myaxa/auth?RequestedPage=…`), der abläuft und danach
-nur noch „Error 403 Forbidden" liefert. Die Weiterleitung über dbv.de holt den Token
-bei jedem Aufruf neu. Genauso gut geht
-`https://entry.axa.de/kunde/myaxa/member/webapp/`.
+### Die beiden Stellen benennen
+
+Wie deine Beihilfestelle und deine Krankenversicherung heißen, ist **frei wählbar** –
+Beihilfestellen unterscheiden sich je nach Dienstherr, und die Versicherung ohnehin.
+Beim ersten Start fragt die App danach (Schritt 2 von 3), später steht es unter
+*Einstellungen → Stellen & Portale*.
+
+Der eingetragene Name erscheint überall: auf den Knöpfen, als Spaltenüberschrift in
+der Übersicht, in der Statistik, in den Erinnerungen – und im Dateinamen der
+abgelegten Bescheide. Änderst du ihn später, gilt er ab sofort; bereits abgelegte
+Dateien behalten ihren alten Namen.
+
+Zu den Adressen: Nimm die **Anmeldeseite**, nicht die Adresse aus dem bereits
+angemeldeten Portal. Letztere enthält bei manchen Anbietern einen Sitzungsschlüssel,
+der nach kurzer Zeit abläuft und danach nur noch eine Fehlermeldung zeigt – bei der
+DBV etwa `entry.axa.de/sls-myaxa/auth?RequestedPage=…`, das später „Error 403
+Forbidden" liefert. Eine Weiterleitung wie `https://www.dbv.de/site/dbv-de/redirect/MyAxaLogin`
+holt den Schlüssel dagegen bei jedem Aufruf neu. Fehlt bei einer Adresse das
+`https://`, ergänzt die App es selbst.
 
 ### Einreichen (Sammelvorgang)
 
@@ -114,7 +125,7 @@ sich dort einloggt, müsste diese Schutzmechanismen umgehen, bräche bei jedem U
 der Portalseite und könnte eine Einreichung stillschweigend verschlucken – bei einer
 Ausschlussfrist ist das bares Geld. Anmelden und Absenden bleiben deshalb bei dir.
 
-**Bescheid prüfen** – Den in der DBV- oder Beihilfe-App heruntergeladenen Bescheid
+**Bescheid prüfen** – Den im Portal heruntergeladenen Bescheid
 hochladen, das ist alles: **Absender und Zugang erkennt die App selbst.** Sie liest die
 Positionen aus, ordnet sie den Einreichungen zu, vergleicht den erstatteten mit dem
 erwarteten Betrag und schreibt Status, Betrag, Bescheiddatum und erkannten
@@ -219,7 +230,7 @@ Damit du nichts einzeln hochladen musst, kann die App einen Ordner überwachen �
 einen Google-Drive- oder OneDrive-Ordner zum Beispiel, in den du vom Handy aus
 abfotografierte Rechnungen legst. **Bescheide gehen genauso**: einen Bescheid, den
 du unterwegs im Portal öffnest, legst du einfach in denselben Ordner, statt später
-nochmal über Beihilfe oder DBV zu gehen.
+nochmal über das Portal zu gehen.
 
 **So läuft es:**
 
@@ -390,9 +401,9 @@ sonst Geld verloren), Kürzungen und Ablehnungen, die eine Entscheidung brauchen
 Rechnungen, überfällige Bescheide und Rechnungen, die vollständig erledigt sind und
 in die Papierablage können.
 
-**Statistik** – Kostenentwicklung pro Jahr (aufgeteilt in Beihilfe, DBV und selbst
+**Statistik** – Kostenentwicklung pro Jahr (aufgeteilt in Beihilfe, Versicherung und selbst
 getragenen Anteil), Kosten pro Person und pro Behandlungsart, der Stand der
-Beitragsrückerstattung bei der DBV sowie eine Auswertung der Kürzungsgründe nach Arzt.
+Beitragsrückerstattung bei der Versicherung sowie eine Auswertung der Kürzungsgründe nach Arzt.
 
 **Excel-Export** – Erzeugt jederzeit eine Excel-Datei mit einem Blatt pro Jahr –
 als Sicherung, für die Steuer oder einfach, um die Zahlen außerhalb der App zu haben.
@@ -414,11 +425,11 @@ Zugang zu.
 
 Ebenfalls dort einzutragen:
 
-- **BRE-Schwelle** pro Person: der Betrag, bis zu dem sich das Einreichen bei der DBV
+- **BRE-Schwelle** pro Person: der Betrag, bis zu dem sich das Einreichen bei der Versicherung
   lohnt, ohne die Beitragsrückerstattung zu verlieren. Ohne Eintrag bleibt die
   Ampel in der Statistik grau.
 - **Ausschlussfristen**: 12 Monate für die Beihilfe (hessischer Regelfall) und
-  24 Monate für die DBV sind Voreinstellungen. Maßgeblich ist die Regelung deines
+  24 Monate für die Versicherung sind Voreinstellungen. Maßgeblich ist die Regelung deines
   Dienstherrn bzw. deines Tarifs.
 
 ## Wo die Daten liegen

@@ -1,4 +1,4 @@
-import { db, getSettingNumber } from './db.js';
+import { db, getSettingNumber, targetLabel } from './db.js';
 import { expectedAmount, round2 } from './calc.js';
 import { normalizeInvoiceNumber, type DecisionItemSuggestion } from './ocr/parse.js';
 import type { DecisionItemRow, SubmissionStatus, Target } from './types.js';
@@ -196,7 +196,7 @@ export function evaluate(
   const expected = expectedAmount(target, invoiceAmount, rate);
   const paid = round2(paidAmount ?? 0);
   const difference = round2(paid - expected);
-  const label = target === 'beihilfe' ? 'Beihilfe' : 'DBV';
+  const label = targetLabel(target);
 
   if (paid <= 0.004) {
     return {

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api';
-import { date, money } from '../format';
+import { date, money, targetLabel } from '../format';
 import { Alert, EmptyState, Field, Spinner } from '../components/ui';
 import { DocumentView } from '../components/DocumentView';
 import type { InboxEntry, Member } from '../types';
@@ -300,7 +300,7 @@ function InboxCard({
                 checked={form.submit_beihilfe}
                 onChange={(e) => set('submit_beihilfe', e.target.checked)}
               />
-              heute bei Beihilfe eingereicht
+              heute bei {targetLabel('beihilfe')} eingereicht
             </label>
             <label className="flex items-center gap-2">
               <input
@@ -308,7 +308,7 @@ function InboxCard({
                 checked={form.submit_dbv}
                 onChange={(e) => set('submit_dbv', e.target.checked)}
               />
-              bei DBV
+              bei {targetLabel('dbv')}
             </label>
           </div>
         </div>
@@ -374,7 +374,7 @@ function DecisionCard({
 
   async function pruefen() {
     if (!target) {
-      onError('Bitte zuerst angeben, ob der Bescheid von der Beihilfe oder der DBV kommt.');
+      onError('Bitte zuerst angeben, von welcher Stelle der Bescheid kommt.');
       setAendern(true);
       return;
     }
@@ -422,7 +422,7 @@ function DecisionCard({
         </h2>
         {d?.target ? (
           <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800">
-            {d.target === 'dbv' ? 'DBV' : 'Beihilfe'} · Zugang {d.account} erkannt
+            {targetLabel(d.target)} · Zugang {d.account} erkannt
           </span>
         ) : (
           <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">
@@ -459,8 +459,8 @@ function DecisionCard({
               <Field label="Absender *">
                 <select className="input" value={target} onChange={(e) => setTarget(e.target.value)}>
                   <option value="">bitte wählen</option>
-                  <option value="beihilfe">Beihilfe</option>
-                  <option value="dbv">DBV</option>
+                  <option value="beihilfe">{targetLabel('beihilfe')}</option>
+                  <option value="dbv">{targetLabel('dbv')}</option>
                 </select>
               </Field>
               <Field label="Zugang" hint="über welche Anmeldung der Bescheid kam">

@@ -22,7 +22,23 @@ export const daysUntil = (iso: string | null | undefined): number | null => {
   return Math.round((ziel - heute) / 86_400_000);
 };
 
-export const targetLabel = (t: Target): string => (t === 'dbv' ? 'DBV' : 'Beihilfe');
+/*
+ * Wie die beiden Stellen heißen, ist einstellbar – nicht jeder ist bei derselben
+ * Versicherung, und Beihilfestellen heißen je nach Dienstherr verschieden.
+ *
+ * Die Namen kommen einmal beim Start aus den Einstellungen (siehe App.tsx) und
+ * liegen danach hier. Das erspart es, sie durch jede Komponente durchzureichen.
+ */
+let stellen = { dbv: 'Versicherung', beihilfe: 'Beihilfe' };
+
+export function setTargetLabels(neu: { dbv?: string; beihilfe?: string }): void {
+  stellen = {
+    dbv: (neu.dbv || '').trim() || stellen.dbv,
+    beihilfe: (neu.beihilfe || '').trim() || stellen.beihilfe,
+  };
+}
+
+export const targetLabel = (t: Target): string => (t === 'dbv' ? stellen.dbv : stellen.beihilfe);
 
 export const SUBMISSION_LABEL: Record<SubmissionStatus, string> = {
   offen: 'offen',
