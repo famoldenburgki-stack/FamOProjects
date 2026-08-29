@@ -100,9 +100,9 @@ Eine flache Liste; Kategorien entstehen aus dem Feld `kategorie`.
 ```json
 {
   "kategorie": "Schreiben",
-  "name": "Zeugenladung",
-  "kuerzel": "ladung",
-  "beschreibung": "Ladung eines Zeugen zu einem Termin",
+  "name": "Einladung",
+  "kuerzel": "einladung",
+  "beschreibung": "Einladung zu einem Termin",
   "text": "{Anrede} {Nachname},\r\n\r\n… am {Termin} …\r\n\r\n{Entschaedigung}",
   "felder": [
     { "name": "Anrede", "typ": "auswahl",
