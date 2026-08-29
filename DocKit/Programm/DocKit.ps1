@@ -361,13 +361,28 @@ namespace DocKit {
             kuerzel = new System.Collections.Generic.HashSet<string>(liste, System.StringComparer.Ordinal);
         }
 
-        public void Installieren() {
-            if (hakenId != IntPtr.Zero) return;
+        // Letzter Systemfehlercode, falls das Anmelden fehlschlug (0 = kein Fehler).
+        public int LetzterFehler = 0;
+
+        // Rückgabe: true, wenn der Haken tatsächlich angemeldet ist — entweder
+        // schon vorher oder gerade eben. Bei false steht der Grund in LetzterFehler.
+        public bool Installieren() {
+            if (hakenId != IntPtr.Zero) return true;
+            LetzterFehler = 0;
             eigenerProc = Hook;
             using (var modul = System.Diagnostics.Process.GetCurrentProcess().MainModule) {
                 hakenId = SetWindowsHookEx(WH_KEYBOARD_LL, eigenerProc, GetModuleHandle(modul.ModuleName), 0);
             }
+            if (hakenId == IntPtr.Zero) {
+                LetzterFehler = Marshal.GetLastWin32Error();
+                return false;
+            }
+            return true;
         }
+
+        // Ob der Haken gerade angemeldet ist — zum Nachsehen von außen, ohne noch
+        // einmal zu versuchen, ihn anzumelden.
+        public bool IstAktiv { get { return hakenId != IntPtr.Zero; } }
 
         public void Entfernen() {
             if (hakenId == IntPtr.Zero) return;
@@ -400,6 +415,15 @@ namespace DocKit {
             uint pid;
             GetWindowThreadProcessId(vorn, out pid);
             return pid == eigenePid;
+        }
+
+        // Die Thread-ID des Vordergrundfensters — dort, wo gerade tatsächlich
+        // getippt wird. Wichtig für die Tastaturbelegung (s. u.).
+        uint VordergrundThreadId() {
+            IntPtr vorn = GetForegroundWindow();
+            if (vorn == IntPtr.Zero) return 0;
+            uint pid;
+            return GetWindowThreadProcessId(vorn, out pid);
         }
 
         // Rückgabe: true, wenn gerade ein registriertes Kürzel komplett getippt wurde
@@ -437,7 +461,11 @@ namespace DocKit {
         /// Welches Zeichen die gedrückte Taste unter der aktuellen Tastatur-
         /// belegung erzeugt — mit GetKeyState statt GetKeyboardState, weil
         /// Letzteres innerhalb eines systemweiten Hakens den Umschalt-/AltGr-
-        /// Zustand nicht zuverlässig aktuell meldet.
+        /// Zustand nicht zuverlässig aktuell meldet. Die Belegung wird vom
+        /// Vordergrundfenster abgefragt, nicht vom eigenen Thread — sonst
+        /// übersetzt DocKit die Taste nach der falschen Belegung, sobald sein
+        /// eigener Thread mit einer anderen Ausgangsbelegung gestartet ist als
+        /// das Programm, in dem gerade getippt wird.
         string ZeichenAus(uint vk) {
             byte[] zustand = new byte[256];
             if ((GetKeyState(VK_SHIFT) & 0x8000) != 0) zustand[VK_SHIFT] = 0x80;
@@ -445,7 +473,7 @@ namespace DocKit {
             if ((GetKeyState(VK_CONTROL) & 0x8000) != 0) zustand[VK_CONTROL] = 0x80;
             if ((GetKeyState(VK_MENU) & 0x8000) != 0) zustand[VK_MENU] = 0x80;
             var sb = new System.Text.StringBuilder(8);
-            IntPtr layout = GetKeyboardLayout(0);
+            IntPtr layout = GetKeyboardLayout(VordergrundThreadId());
             int n = ToUnicodeEx(vk, MapVirtualKey(vk, 0), zustand, sb, sb.Capacity, 0, layout);
             if (n <= 0) return "";
             return sb.ToString();
@@ -1909,7 +1937,14 @@ function Verarbeite-Autotext-Treffer {
 function Starte-Autotext {
     if ($null -eq $global:Kuerzelwaechter) { $global:Kuerzelwaechter = New-Object DocKit.Kuerzelwaechter }
     Aktualisiere-Autotext-Kuerzel
-    $global:Kuerzelwaechter.Installieren()
+    $erfolg = $global:Kuerzelwaechter.Installieren()
+    if (-not $erfolg) {
+        $code = $global:Kuerzelwaechter.LetzterFehler
+        Zeige-Meldung ("Die Kürzel-Erkennung ließ sich nicht anmelden (Systemfehler $code). " +
+            "Möglich, dass ein Sicherheitsprogramm das verhindert hat — die Einstellung bleibt " +
+            "angehakt, wirkt aber nicht.") 'Kürzel-Erkennung' 'Warning'
+        return
+    }
 
     if ($null -eq $global:AutotextZeitgeber) {
         $global:AutotextZeitgeber = New-Object System.Windows.Forms.Timer
