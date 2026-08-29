@@ -126,7 +126,25 @@
 
 <p>Blau geschriebene Einträge in der Liste fragen noch etwas nach, schwarze werden direkt eingefügt.</p>
 
-<h2>3. Der Assistent</h2>
+<h2>3. Kürzel beim Tippen — ganz ohne Tastenkombination</h2>
+
+<p>Für Bausteine, die oft gebraucht werden, geht es noch schneller: ein Kürzel wie <code>#AV</code>
+festlegen (siehe Kapitel 5), und dann einfach in einer Mail, in Word oder sonst wo genau dieses
+Kürzel tippen — gefolgt von einem Leerzeichen, Enter oder Tab. Der Baustein erscheint sofort an
+der Stelle, ohne dass die Tastenkombination gedrückt werden muss.</p>
+
+<div class="kasten">
+  <p><strong>Muss erst eingeschaltet werden.</strong> Diese Funktion ist standardmäßig aus —
+  Einstellungen → <em>Kürzel-Erkennung</em>. Der Grund: Damit DocKit ein irgendwo getipptes Kürzel
+  überhaupt bemerken kann, muss es kurz jeden Tastendruck im System mitlesen, ganz gleich in
+  welchem Programm gerade getippt wird. DocKit merkt sich dabei nichts — es prüft nur, ob die
+  letzten paar Zeichen zu einem hinterlegten Kürzel passen, und vergisst sie sofort wieder, wenn
+  nicht. Manche Virenschutzprogramme melden diese Art des Mitlesens trotzdem als verdächtig; bei
+  Problemen einfach in den Einstellungen wieder ausschalten — der Rest von DocKit läuft unverändert
+  weiter.</p>
+</div>
+
+<h2>4. Der Assistent</h2>
 
 <p>Links stehen die Angaben, die dieser Baustein braucht, rechts läuft die Vorschau mit — du siehst
 also beim Ausfüllen schon, was herauskommt.</p>
@@ -147,7 +165,7 @@ wenn du erst noch das Zielprogramm suchen musst. Einfügen dann von Hand mit <kb
   dann aber stehen. In der Verwaltung lässt sich das mit einem Klick auf <em>Ausprobieren</em> prüfen.</p>
 </div>
 
-<h2>4. Eigene Bausteine anlegen</h2>
+<h2>5. Eigene Bausteine anlegen</h2>
 
 <p>Rechtsklick auf das Symbol → <em>Bausteine verwalten…</em></p>
 
@@ -155,6 +173,9 @@ wenn du erst noch das Zielprogramm suchen musst. Einfügen dann von Hand mit <kb
   <li><strong>Neu</strong> anklicken. Links im Baum erscheint ein neuer Eintrag.</li>
   <li>Oben <strong>Name</strong> vergeben, <strong>Kategorie</strong> wählen oder neu eintippen,
       optional ein <strong>Kürzel</strong> zum schnellen Finden.</li>
+  <li>Optional darunter ein <strong>Kürzel für die automatische Erkennung</strong> — anders als das
+      Kürzel oben (das hilft nur beim Suchen in DocKit) löst dieses beim Tippen in jedem beliebigen
+      Programm aus, sofern die Kürzel-Erkennung eingeschaltet ist (Kapitel 3).</li>
   <li>In das große Feld den Text schreiben. Alles, was später wechselt, kommt in geschweifte Klammern:
       <code>{Nachname}</code>.</li>
   <li>Für jede Klammer unten rechts ein <strong>Neues Feld</strong> anlegen — gleicher Name, passende Art.</li>
@@ -370,7 +391,7 @@ anderes als ein Platzhalter und steht im Feldeditor: <code>heute</code>, <code>m
 <code>gestern</code>, <code>+7</code> (in einer Woche), <code>-3</code> (vor drei Tagen) oder ein festes
 Datum wie <code>24.12.2026</code>.</p>
 
-<h2>5. Vorlagen — ganze Dateien statt Text</h2>
+<h2>6. Vorlagen — ganze Dateien statt Text</h2>
 
 <p>Ein Textbaustein liefert Text. Eine <strong>Vorlage</strong> liefert eine ganze Datei: den
 Blanko-Briefkopf, das leere Vermerksformular, die Excel-Liste. DocKit merkt sich, wo die
@@ -437,7 +458,7 @@ legt die Kopie trotzdem an — nur eben leer.</p>
 <p>Umgekehrt geht es auch: Zieh eine Vorlage aus der Übersicht in einen Explorer-Ordner. Dort landet
 eine Kopie.</p>
 
-<h2>6. Kombinationen — Vorlage und Baustein(e) als Paar</h2>
+<h2>7. Kombinationen — Vorlage und Baustein(e) als Paar</h2>
 
 <p>Manche Vorlage und mancher Baustein gehören eigentlich immer zusammen — der
 Abschlussvermerk besteht fast immer aus der Vorlage <em>Vermerk</em> und dem gleichnamigen
@@ -483,7 +504,7 @@ DocKit meldet nur den einen, der nicht geklappt hat.</p>
 DocKit beim nächsten Benutzen der Kombination statt einfach nichts zu tun. In der Übersicht
 und in der Verwaltung steht dann <em>— fehlt —</em> statt des Namens.</p>
 
-<h2>7. Bausteine an Kollegen weitergeben</h2>
+<h2>8. Bausteine an Kollegen weitergeben</h2>
 
 <p>Ein Kollege hätte gern deinen Baustein — oder du willst einen in die gemeinsame Datei der
 Dienststelle geben. Dafür gibt es eine kleine Datei mit der Endung <code>.tbx</code>. Darin steckt
@@ -539,7 +560,7 @@ schickt, dessen Bausteine kannst du einzeln herauspicken, ohne die Datei zu öff
 <p class="leise">Übernommene Bausteine erscheinen mit deinem Anmeldenamen als letztem Bearbeiter;
 wer sie ursprünglich angelegt hat, steht weiterhin daneben.</p>
 
-<h2>8. Mit auf den USB-Stick</h2>
+<h2>9. Mit auf den USB-Stick</h2>
 
 <p>Den kompletten Ordner <code>DocKit</code> auf den Stick kopieren — mehr ist nicht nötig.
 Auf dem anderen Rechner die <code>DocKit starten.bat</code> vom Stick aus starten. Deine
@@ -551,7 +572,7 @@ Bausteine sind dabei, denn sie liegen im Unterordner <code>Daten</code>.</p>
   Ziehst du den Stick ab, ist der fremde Rechner unverändert.</p>
 </div>
 
-<h2>9. Einstellungen</h2>
+<h2>10. Einstellungen</h2>
 
 <p>Rechtsklick auf das Symbol → <em>Einstellungen…</em></p>
 
@@ -561,9 +582,10 @@ Bausteine sind dabei, denn sie liegen im Unterordner <code>Daten</code>.</p>
   <tr><td>Sofort einfügen</td><td>Aus: der Text landet nur in der Zwischenablage und wird von Hand eingefügt.</td></tr>
   <tr><td>Leerzeilen entfernen</td><td>Sorgt dafür, dass abgewählte Ja/Nein-Abschnitte keine Lücken hinterlassen.</td></tr>
   <tr><td>Zwischenablage wiederherstellen</td><td>Was du vorher kopiert hattest, steht danach wieder zur Verfügung.</td></tr>
+  <tr><td>Kürzel-Erkennung</td><td>Aus, bis ausdrücklich angehakt — siehe Kapitel 3. Wirkt sofort, kein Neustart nötig.</td></tr>
 </table>
 
-<h2>10. Wenn etwas nicht funktioniert</h2>
+<h2>11. Wenn etwas nicht funktioniert</h2>
 
 <h3>Windows warnt vor einem „unbekannten Herausgeber"</h3>
 
@@ -592,6 +614,14 @@ sich beim zweiten Start selbst.</p>
 <h3>Der Text wird nicht eingefügt, ist aber kopiert</h3>
 <p>Manche Programme lassen sich nicht von außen bedienen — vor allem, wenn sie als Administrator
 laufen. Einfach <kbd>Strg</kbd>+<kbd>V</kbd> drücken, der Text liegt bereit.</p>
+
+<h3>Die Kürzel-Erkennung reagiert nicht, oder der Virenschutz meldet sich</h3>
+<p>Prüfen, ob sie in den Einstellungen wirklich angehakt ist. Bleibt das Kürzel trotzdem wirkungslos,
+oder schlägt ein Virenschutz-/Sicherheitsprogramm Alarm: Die Kürzel-Erkennung liest dafür kurz jeden
+Tastendruck im System mit, um das eigene Kürzel zu erkennen — genau das stufen manche
+Sicherheitsprogramme grundsätzlich als verdächtig ein, unabhängig davon, was DocKit damit wirklich
+tut (nichts wird aufgezeichnet oder gespeichert). Einfach in den Einstellungen wieder ausschalten —
+der Rest von DocKit funktioniert unverändert weiter.</p>
 
 <h3>Ich habe mir die Bausteine zerschossen</h3>
 <p>Im Ordner <code>Daten</code> liegt neben <code>bausteine.json</code> eine Datei

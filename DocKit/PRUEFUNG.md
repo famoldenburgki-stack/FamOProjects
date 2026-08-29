@@ -85,22 +85,71 @@ bei ausdrücklicher Handlung des Anwenders:
 | Vorlage und verknüpfte Bausteine einer Kombination auflösen | `Pruefe-Kombination`, Abschnitt 2 | Nur eine Suche in den bereits geladenen Listen — kein zusätzlicher Dateizugriff |
 | Vorlage unsichtbar öffnen und als Bild rendern | `Rendere-Wort-Vorschau` / `Rendere-Excel-Vorschau`, Abschnitt 2 | Eingebaute Vorschau, ausgelöst über einen eigenen Knopf »Vorschau« — nie automatisch beim bloßen Anklicken einer Zeile. Word/Excel wird nie sichtbar, die Ursprungsdatei nie verändert (nur lesend geöffnet) |
 | Vorlage in TEMP kopieren und öffnen | `Zeige-Vorlage-Vorschau`, Abschnitt 2 | Rückfalloption im Vorschaufenster: „In eigenem Programm öffnen", nur auf ausdrücklichen Klick. Die Kopie ist schreibgeschützt (`ReadOnly`-Attribut), die Ursprungsdatei bleibt unangetastet. |
+| Systemweiten Tastatur-Haken anmelden | `DocKit.Kuerzelwaechter`, Abschnitt 1 | Kürzel-Erkennung (siehe eigener Abschnitt unten) — **nur, wenn in den Einstellungen ausdrücklich eingeschaltet; standardmäßig aus** |
 
-### Was das Programm nicht tut
+### Kürzel-Erkennung: die eine Ausnahme vom „kein Tastaturmitschnitt"
+
+Seit Fassung 1.4 kann DocKit ein festgelegtes Kürzel — etwa `#AV` — erkennen, sobald es in
+**irgendeinem** Programm getippt und mit Leertaste, Enter oder Tab abgeschlossen wird, und
+setzt dafür sofort den zugehörigen Baustein ein. Technisch geht das nur über einen
+systemweiten Tastatur-Haken (`SetWindowsHookEx` mit `WH_KEYBOARD_LL`) — dieselbe Technik,
+die Programme wie PhraseExpress benutzen. Das widerspricht der bisherigen Aussage weiter
+unten, „es gibt keinen Tastaturhaken" — deshalb hier ausführlich, statt die alte Aussage
+einfach stehen zu lassen.
+
+**Standardmäßig aus.** Der Haken wird nur installiert, wenn unter Einstellungen →
+Kürzel-Erkennung ausdrücklich angehakt wird (`autotext_aktiv` in den Einstellungen, Standard
+`false`). Ohne dieses Anhaken verhält sich DocKit exakt wie vorher — kein Haken, keine
+Ausnahme von den übrigen Zusagen in diesem Abschnitt.
+
+**Was der Haken sieht, und was er damit macht.** Jeder Tastendruck im System löst den
+Haken kurz aus (das ist bei `WH_KEYBOARD_LL` technisch nicht vermeidbar — er bekommt jede
+Taste, ganz gleich in welchem Programm). Verarbeitet wird davon nur, welches Zeichen die
+Taste erzeugt; das kommt in einen Zwischenspeicher (`Kuerzelwaechter.puffer`, höchstens 40
+Zeichen), der bei jedem Leerzeichen/Enter/Tab, jeder Rücktaste und jeder nicht als Zeichen
+abgebildeten Taste (Pfeiltasten etc.) sofort verworfen wird. Geprüft wird ausschließlich, ob
+der aktuelle Pufferinhalt einem der hinterlegten Kürzel entspricht — passt keines, ist der
+Inhalt bereits vergessen, bevor die nächste Taste kommt. **Es wird nichts protokolliert,
+in eine Datei geschrieben, über das Netzwerk gesendet oder sonst irgendwo dauerhaft
+abgelegt.** Ebenfalls ignoriert: alles, was innerhalb von DocKit selbst getippt wird
+(`ImEigenenFenster`), und alle künstlich erzeugten Tastendrücke — also die eigenen, beim
+Ersetzen gesendeten Rücktasten und das anschließende Einfügen (`LLKHF_INJECTED`-Flag).
+
+**Wohin es geschrieben wird, wenn ein Kürzel passt.** Erkannt wird das nur außerhalb des
+Hakens selbst, in einem Zeitgeber, der die Fundliste alle 60 ms abholt (`Verarbeite-Autotext-Treffer`)
+— der Haken muss sofort zurückkehren, sonst kann Windows ihn deaktivieren. Das Kürzel wird
+dann per `SendKeys` aus dem Zielprogramm herausgelöscht (so viele Rücktasten wie Zeichen im
+Kürzel) und der Baustein an derselben Stelle eingefügt — derselbe Weg wie beim Einfügen über
+die Tastenkombination.
+
+**Bekanntes Risiko, nicht versteckt: Virenschutz/EDR.** Ein systemweiter Tastatur-Haken ist
+rein technisch dieselbe Art Baustein, aus der auch echte Keylogger bestehen — manche
+Sicherheitsprogramme stufen `SetWindowsHookEx`/`WH_KEYBOARD_LL` deshalb pauschal als
+verdächtig ein, unabhängig davon, was der Code damit tatsächlich anstellt. Auf einem streng
+abgesicherten Arbeitsplatz kann das dazu führen, dass DocKit gemeldet, blockiert oder in
+Quarantäne verschoben wird, sobald die Kürzel-Erkennung eingeschaltet wird. Deshalb: aus
+genau diesem Grund standardmäßig aus, und bei Auffälligkeiten einfach wieder ausschalten —
+der Rest von DocKit funktioniert unverändert weiter.
+
+### Was das Programm sonst nicht tut
 
 - **Keine Netzverbindung.** Es gibt keinen Aufruf von `Invoke-WebRequest`,
   `Net.WebClient`, `Net.Sockets` oder vergleichbarem. Nachprüfbar durch Suche.
 - **Kein Schreiben in die Registry.**
 - **Kein Autostart**, kein Dienst, keine geplante Aufgabe.
 - **Keine erhöhten Rechte.** Es gibt kein Manifest und keinen `runas`-Aufruf.
-- **Kein Tastaturmitschnitt.** Die Tastenkombination wird über `RegisterHotKey` bei
-  Windows angemeldet; das Betriebssystem meldet nur diese eine Kombination zurück.
-  Es gibt keinen Tastaturhaken (`SetWindowsHookEx`).
+- **Keine Aufzeichnung von Tastatureingaben.** Der Tastatur-Haken der Kürzel-Erkennung
+  (siehe oben) ist die eine, bewusste und abschaltbare Ausnahme — er hält nichts fest,
+  sondern vergisst jede Eingabe sofort wieder, sobald geprüft ist, ob sie zu einem der
+  hinterlegten Kürzel passt. Ohne eingeschaltete Kürzel-Erkennung gilt weiterhin: Die
+  Tastenkombination zum Öffnen der Schnellwahl wird über `RegisterHotKey` angemeldet: das
+  Betriebssystem meldet nur diese eine Kombination zurück, kein Haken ist dafür nötig.
 - **Keine Zwischenablageüberwachung.** Gelesen wird nur, wenn ein Baustein den
   Platzhalter `{zwischenablage}` enthält.
 
-Diese Aussagen lassen sich mit einer Textsuche über `Programm\DocKit.ps1`
-belegen — die genannten Begriffe kommen dort nicht vor.
+Bis auf `SetWindowsHookEx` (siehe Kürzel-Erkennung oben) lassen sich diese Aussagen mit
+einer Textsuche über `Programm\DocKit.ps1` belegen — die übrigen genannten Begriffe kommen
+dort nicht vor.
 
 ---
 

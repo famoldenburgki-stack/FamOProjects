@@ -180,7 +180,7 @@ Angaben und der Endung `.tbx`:
   "version": 1,
   "art": "weitergabe",
   "erzeugt": "2026-08-19 17:47:49",
-  "von": "timbe",
+  "von": "mmuster",
   "bausteine": [ … ]
 }
 ```
@@ -253,8 +253,8 @@ Stelle.
     { "id": "…", "baustein_id": "…", "einfuegen_art": "marke", "einfuegen_marke": "{Anrede}" },
     { "id": "…", "baustein_id": "…", "einfuegen_art": "ende", "einfuegen_marke": "" }
   ],
-  "erstellt_von": "timbe", "erstellt_am": "…",
-  "geaendert_von": "timbe", "geaendert_am": "…"
+  "erstellt_von": "mmuster", "erstellt_am": "…",
+  "geaendert_von": "mmuster", "geaendert_am": "…"
 }
 ```
 
@@ -299,6 +299,48 @@ soll. Bearbeitet wird auf einer Arbeitskopie der Liste; erst „Übernehmen" sch
 mit eigenem Reiter, eigenem Symbol (violettes „K") und eigener Farbe. Die Rechtsklick-Logik für
 Kategorien (`$benenneKategorie`, `$loeseKategorieAuf`) war zuvor auf ein `[bool] $IstVorlage`
 zugeschnitten; sie unterscheidet über ein `[string] $ArtKat` zwischen allen drei Listen.
+
+---
+
+## Kürzel-Erkennung: ein Baustein per Tippen, in jedem Programm
+
+Ein Baustein kann ein Kürzel wie `#AV` bekommen (Feld „Kürzel für die automatische Erkennung" im
+Bausteineditor). Ist die Kürzel-Erkennung eingeschaltet (Einstellungen → aus, bis ausdrücklich
+angehakt) und wird dieses Kürzel in **irgendeinem** Programm getippt und mit Leerzeichen, Enter
+oder Tab abgeschlossen, ersetzt DocKit es sofort durch den Baustein — ganz ohne die
+Tastenkombination zu drücken. Hat der Baustein Felder, geht wie gewohnt der Assistent auf.
+
+**Technisch nur über einen systemweiten Tastatur-Haken möglich** (`SetWindowsHookEx`,
+`WH_KEYBOARD_LL`, in `DocKit.Kuerzelwaechter`) — dieselbe Technik, die Programme wie PhraseExpress
+benutzen, um Kürzel beim Tippen zu erkennen. Ein `RegisterHotKey` wie bei der Schnellwahl reicht
+dafür nicht: Es kennt nur fest angemeldete Tastenkombinationen, keine frei getippten
+Zeichenfolgen. Deshalb ist die Funktion **standardmäßig aus** — ausführliche Begründung samt
+Sicherheitsüberlegungen in [PRUEFUNG.md](PRUEFUNG.md#kürzel-erkennung-die-eine-ausnahme-vom-kein-tastaturmitschnitt).
+
+**Wie der Haken mit dem Zwischenspeicher umgeht.** `Kuerzelwaechter` hält nur die letzten
+höchstens 40 getippten Zeichen seit der letzten Wortgrenze — verworfen bei Leerzeichen/Enter/Tab,
+Rücktaste (korrigiert das letzte Zeichen) und jeder nicht als Zeichen abgebildeten Taste
+(Pfeiltasten etc., weil sich der Cursor dabei bewegt haben könnte). Geprüft wird nur der
+Pufferinhalt gegen die Menge der hinterlegten Kürzel (`HashSet<string>`, ordinal — Groß-/
+Kleinschreibung zählt also); passt nichts, ist der Inhalt schon vergessen. Der eigentliche
+Tastendruck-Callback (`Hook`) tut nichts weiter, als das zu prüfen und sofort zurückzukehren —
+Windows kann einen langsamen `WH_KEYBOARD_LL`-Haken sonst stillschweigend abschalten. Das
+tatsächliche Ersetzen (Rücktasten senden, `Benutze-Baustein` aufrufen, ggf. den Assistenten
+zeigen) passiert erst danach, ausgelöst von einem `System.Windows.Forms.Timer`
+(`$global:AutotextZeitgeber`), der die Fundliste alle 60 ms abholt.
+
+**Zwei Selbstschutz-Mechanismen im Haken selbst:** `LLKHF_INJECTED` filtert die eigenen,
+künstlich per `SendKeys` erzeugten Tastendrücke beim Ersetzen heraus (sonst würde die Erkennung
+sich selbst auslösen), und `ImEigenenFenster` ignoriert alles, was innerhalb von DocKit selbst
+getippt wird.
+
+**Getestet ohne echten Haken.** Ein Prüflauf kann einen systemweiten Tastatur-Haken nicht ehrlich
+simulieren — künstlich erzeugte Tastendrücke werden ja bewusst ignoriert. Deshalb ist
+`Verarbeiten(uint vk)` bewusst `public`: Die reine Erkennungslogik (Puffern, Wortgrenzen,
+Rücktaste, Treffer) lässt sich damit direkt prüfen, ohne den Haken selbst zu installieren. Ein
+weiterer Prüflauf hängt eine echte, harmlose `TextBox` in den Vordergrund und lässt
+`Verarbeite-Autotext-Treffer` wirklich Rücktasten senden — das deckt den Weg vom erkannten
+Kürzel bis zum eingefügten Baustein Ende-zu-Ende ab.
 
 ---
 

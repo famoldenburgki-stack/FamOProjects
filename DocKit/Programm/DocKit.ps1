@@ -279,6 +279,180 @@ namespace DocKit {
 
         public void Dispose() { Abmelden(); DestroyHandle(); }
     }
+
+    /*
+        Kürzel-Erkennung: löst ein Kürzel wie "#AV" aus, sobald es gefolgt von
+        Leerzeichen/Enter/Tab getippt wird — egal in welchem Programm. Technisch
+        geht das nur über einen systemweiten Tastatur-Haken (SetWindowsHookEx,
+        WH_KEYBOARD_LL) — dieselbe Technik, die Programme wie PhraseExpress
+        benutzen. Bewusst abschaltbar und standardmäßig aus (Einstellungen);
+        siehe PRUEFUNG.md für die ausführliche Begründung.
+
+        Was diese Klasse NICHT tut: nichts wird aufgezeichnet, gespeichert oder
+        irgendwohin gesendet. Es wird nur ein kurzer Zwischenspeicher des zuletzt
+        getippten "Worts" geführt (höchstens 40 Zeichen), der bei jeder
+        Wortgrenze verworfen wird — ob er zu einem der registrierten Kürzel
+        passt, wird sofort geprüft und dann vergessen. Eigene, künstlich per
+        SendKeys erzeugte Tastendrücke (beim Löschen und Einfügen) werden über
+        das Injected-Flag erkannt und ignoriert, ebenso alles, was innerhalb von
+        DocKit selbst getippt wird — sonst würde die Erkennung sich selbst ins
+        Gehege kommen.
+    */
+    public class Kuerzelwaechter : IDisposable {
+        delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
+
+        [StructLayout(LayoutKind.Sequential)]
+        struct KBDLLHOOKSTRUCT {
+            public uint vkCode;
+            public uint scanCode;
+            public uint flags;
+            public uint time;
+            public IntPtr dwExtraInfo;
+        }
+
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
+        [DllImport("user32.dll", SetLastError = true)]
+        static extern bool UnhookWindowsHookEx(IntPtr hhk);
+        [DllImport("user32.dll")]
+        static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("user32.dll")]
+        static extern bool GetKeyboardState(byte[] lpKeyState);
+        [DllImport("user32.dll")]
+        static extern uint MapVirtualKey(uint uCode, uint uMapType);
+        [DllImport("user32.dll")]
+        static extern IntPtr GetKeyboardLayout(uint idThread);
+        [DllImport("user32.dll")]
+        static extern int ToUnicodeEx(uint wVirtKey, uint wScanCode, byte[] lpKeyState,
+            System.Text.StringBuilder pwszBuff, int cchBuff, uint wFlags, IntPtr dwhkl);
+        [DllImport("user32.dll")]
+        static extern short GetKeyState(int nVirtKey);
+        [DllImport("user32.dll")]
+        static extern IntPtr GetForegroundWindow();
+        [DllImport("user32.dll")]
+        static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+        const int WH_KEYBOARD_LL = 13;
+        const int WM_KEYDOWN     = 0x0100;
+        const int WM_SYSKEYDOWN  = 0x0104;
+        const uint LLKHF_INJECTED = 0x00000010;
+        const uint VK_BACK   = 0x08;
+        const uint VK_TAB    = 0x09;
+        const uint VK_RETURN = 0x0D;
+        const uint VK_SPACE  = 0x20;
+        const int VK_SHIFT   = 0x10;
+        const int VK_CAPITAL = 0x14;
+        const int VK_CONTROL = 0x11;
+        const int VK_MENU    = 0x12;
+        const int maxPuffer  = 40;   // länger als jedes sinnvolle Kürzel
+
+        IntPtr hakenId = IntPtr.Zero;
+        HookProc eigenerProc;   // Referenz festhalten — sonst räumt der Müllsammler den Delegaten weg
+        System.Text.StringBuilder puffer = new System.Text.StringBuilder();
+        System.Collections.Generic.HashSet<string> kuerzel =
+            new System.Collections.Generic.HashSet<string>(System.StringComparer.Ordinal);
+        readonly System.Collections.Generic.Queue<string> treffer = new System.Collections.Generic.Queue<string>();
+        readonly uint eigenePid = (uint)System.Diagnostics.Process.GetCurrentProcess().Id;
+
+        // Von PowerShell gepflegt: welche Kürzel gerade auslösen sollen.
+        public void KuerzelSetzen(string[] liste) {
+            kuerzel = new System.Collections.Generic.HashSet<string>(liste, System.StringComparer.Ordinal);
+        }
+
+        public void Installieren() {
+            if (hakenId != IntPtr.Zero) return;
+            eigenerProc = Hook;
+            using (var modul = System.Diagnostics.Process.GetCurrentProcess().MainModule) {
+                hakenId = SetWindowsHookEx(WH_KEYBOARD_LL, eigenerProc, GetModuleHandle(modul.ModuleName), 0);
+            }
+        }
+
+        public void Entfernen() {
+            if (hakenId == IntPtr.Zero) return;
+            UnhookWindowsHookEx(hakenId);
+            hakenId = IntPtr.Zero;
+            lock (treffer) { treffer.Clear(); }
+            puffer.Clear();
+        }
+
+        // Wird von PowerShell per Timer regelmäßig abgefragt — nie aus dem Haken
+        // selbst heraus verarbeitet, der muss sofort zurückkehren.
+        public string NaechsterTreffer() {
+            lock (treffer) { return treffer.Count > 0 ? treffer.Dequeue() : null; }
+        }
+
+        IntPtr Hook(int nCode, IntPtr wParam, IntPtr lParam) {
+            if (nCode >= 0 && (wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)) {
+                var daten = (KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(KBDLLHOOKSTRUCT));
+                bool injiziert = (daten.flags & LLKHF_INJECTED) != 0;
+                if (!injiziert && !ImEigenenFenster()) {
+                    if (Verarbeiten(daten.vkCode)) return (IntPtr)1;   // Wortgrenze verschlucken — ein Kürzel wurde erkannt
+                }
+            }
+            return CallNextHookEx(hakenId, nCode, wParam, lParam);
+        }
+
+        bool ImEigenenFenster() {
+            IntPtr vorn = GetForegroundWindow();
+            if (vorn == IntPtr.Zero) return false;
+            uint pid;
+            GetWindowThreadProcessId(vorn, out pid);
+            return pid == eigenePid;
+        }
+
+        // Rückgabe: true, wenn gerade ein registriertes Kürzel komplett getippt wurde
+        // (die Wortgrenze soll dann nicht beim Zielprogramm ankommen). Öffentlich,
+        // damit sich die reine Erkennungslogik ohne echten Tastatur-Haken prüfen
+        // lässt — ein Haken lässt sich in einem Prüflauf nicht ehrlich simulieren,
+        // weil künstlich erzeugte Tastendrücke bewusst ignoriert werden (s. o.).
+        public bool Verarbeiten(uint vk) {
+            if (vk == VK_BACK) {
+                if (puffer.Length > 0) puffer.Length--;
+                return false;
+            }
+            if (vk == VK_SPACE || vk == VK_RETURN || vk == VK_TAB) {
+                bool istTreffer = false;
+                if (puffer.Length > 0 && kuerzel.Contains(puffer.ToString())) {
+                    istTreffer = true;
+                    lock (treffer) { treffer.Enqueue(puffer.ToString()); }
+                }
+                puffer.Clear();
+                return istTreffer;
+            }
+            string zeichen = ZeichenAus(vk);
+            if (string.IsNullOrEmpty(zeichen)) {
+                // Pfeiltasten, Funktionstasten und Ähnliches: Der Cursor könnte
+                // sich bewegt haben, der Zwischenspeicher passt dann nicht mehr
+                // zur tatsächlichen Tippstelle — lieber neu anfangen.
+                puffer.Clear();
+                return false;
+            }
+            puffer.Append(zeichen);
+            if (puffer.Length > maxPuffer) puffer.Remove(0, puffer.Length - maxPuffer);
+            return false;
+        }
+
+        /// Welches Zeichen die gedrückte Taste unter der aktuellen Tastatur-
+        /// belegung erzeugt — mit GetKeyState statt GetKeyboardState, weil
+        /// Letzteres innerhalb eines systemweiten Hakens den Umschalt-/AltGr-
+        /// Zustand nicht zuverlässig aktuell meldet.
+        string ZeichenAus(uint vk) {
+            byte[] zustand = new byte[256];
+            if ((GetKeyState(VK_SHIFT) & 0x8000) != 0) zustand[VK_SHIFT] = 0x80;
+            if ((GetKeyState(VK_CAPITAL) & 0x0001) != 0) zustand[VK_CAPITAL] = 0x01;
+            if ((GetKeyState(VK_CONTROL) & 0x8000) != 0) zustand[VK_CONTROL] = 0x80;
+            if ((GetKeyState(VK_MENU) & 0x8000) != 0) zustand[VK_MENU] = 0x80;
+            var sb = new System.Text.StringBuilder(8);
+            IntPtr layout = GetKeyboardLayout(0);
+            int n = ToUnicodeEx(vk, MapVirtualKey(vk, 0), zustand, sb, sb.Capacity, 0, layout);
+            if (n <= 0) return "";
+            return sb.ToString();
+        }
+
+        public void Dispose() { Entfernen(); }
+    }
 }
 '@
 }
@@ -318,6 +492,7 @@ function Standard-Einstellungen {
         aktuelle_datei               = ''      # zuletzt geöffnete Textbausteindatei
         zuletzt_verwendet            = @()     # Liste für den schnellen Wechsel
         letzter_zielordner           = ''      # wohin zuletzt eine Vorlagenkopie ging
+        autotext_aktiv               = $false  # Kürzel-Erkennung beim Tippen — bewusst aus, bis eingeschaltet
     }
 }
 
@@ -371,6 +546,11 @@ function Neuer-Baustein {
         beschreibung = ''
         text         = ''      # reine Textfassung, als Rückfallebene und zum Suchen
         rtf          = ''      # die maßgebliche, formatierte Fassung
+        # Löst die Kürzel-Erkennung beim Tippen aus (Abschnitt 3a) — leer heißt:
+        # nicht beteiligt. Bewusst ein eigenes Feld, getrennt vom Such-Kürzel
+        # oben: Das hier wird beim Tippen in jedem Programm mitgelesen, das
+        # Such-Kürzel nie.
+        autotext_kuerzel = ''
         # Wer wann — damit in einer gemeinsam gepflegten Datei nachvollziehbar
         # bleibt, wer etwas angelegt und wer es zuletzt geändert hat.
         erstellt_von  = $env:USERNAME
@@ -605,6 +785,7 @@ function Speichere-Bausteine {
         kombinationen = @($global:Kombinationen)
     }
     Schreib-Json $global:BausteinDatei $daten
+    Aktualisiere-Autotext-Kuerzel
 }
 
 # =====================================================================
@@ -756,6 +937,7 @@ function Oeffne-Bausteindatei {
 
     Merke-Datei $Pfad
     if ($global:Tray) { $global:Tray.Text = "DocKit — $(Dateiname-Kurz $Pfad)" }
+    Aktualisiere-Autotext-Kuerzel
     return $true
 }
 
@@ -1650,6 +1832,103 @@ function Fuege-Text-Ein {
             [void](Setze-Zwischenablage $vorher)
         }
     }
+}
+
+<#
+    Einen Baustein tatsächlich benutzen: Hat er Felder, geht der Assistent auf;
+    sonst landet er ohne Umweg in der Zwischenablage und im Zielfenster.
+
+    Eigene Funktion, weil das von zwei Stellen gebraucht wird, die sich sonst
+    kaum ähneln — der Auswahl in der Schnellwahl und der Kürzel-Erkennung beim
+    Tippen (Abschnitt 3a). Beide kennen nur "diesen Baustein, in dieses Fenster",
+    den Rest erledigt diese Funktion.
+
+    Rückgabe: 'einfuegen', 'kopieren' oder 'abbruch' — der Aufrufer entscheidet,
+    was ein Abbruch für ihn bedeutet.
+#>
+function Benutze-Baustein {
+    param($Baustein, [IntPtr]$Zielfenster)
+
+    if (@($Baustein.felder).Count -eq 0) {
+        $erg = Ersetze-Platzhalter-Rtf -Rtf (Hole-Baustein-Rtf $Baustein) -Werte @{}
+        Fuege-Text-Ein -Text $erg.Text -Rtf $erg.Rtf -Zielfenster $Zielfenster
+        return 'einfuegen'
+    }
+
+    $ergebnis = Zeige-Assistent -Baustein $Baustein
+    if ($ergebnis.Aktion -eq 'einfuegen') {
+        Fuege-Text-Ein -Text $ergebnis.Text -Rtf $ergebnis.Rtf -Zielfenster $Zielfenster
+    } elseif ($ergebnis.Aktion -eq 'kopieren') {
+        Fuege-Text-Ein -Text $ergebnis.Text -Rtf $ergebnis.Rtf -Zielfenster $Zielfenster -NurKopieren
+        Zeige-Meldung 'Der Text liegt jetzt in der Zwischenablage. Mit Strg+V einfügen.' 'Kopiert'
+    }
+    return $ergebnis.Aktion
+}
+
+<#
+    Kürzel-Erkennung: Tippt der Anwender in irgendeinem Programm ein Kürzel wie
+    "#AV" (bei einem Baustein hinterlegt) gefolgt von Leertaste, Enter oder Tab,
+    landet der Baustein dort — ganz ohne Strg+Alt+T. Bewusst abschaltbar und
+    standardmäßig aus, weil das technisch einen systemweiten Tastatur-Haken
+    braucht (DocKit.Kuerzelwaechter); Einzelheiten in PRUEFUNG.md.
+
+    Der Haken selbst darf nie lange beschäftigt sein — deshalb sammelt er nur,
+    welche Kürzel getippt wurden, und ein Zeitgeber holt sie regelmäßig ab. Das
+    eigentliche Einsetzen (unter Umständen mit Assistent, der offen bleibt, bis
+    der Anwender fertig ist) passiert erst hier, außerhalb des Hakens.
+#>
+
+# Meldet dem Haken, auf welche Kürzel er gerade achten soll — nach jedem Laden,
+# Speichern oder Bearbeiten der Bausteine neu aufgerufen.
+function Aktualisiere-Autotext-Kuerzel {
+    if ($null -eq $global:Kuerzelwaechter) { return }
+    $liste = @($global:Bausteine) |
+        Where-Object { $_ -and -not [string]::IsNullOrWhiteSpace([string]$_.autotext_kuerzel) } |
+        ForEach-Object { [string]$_.autotext_kuerzel }
+    $global:Kuerzelwaechter.KuerzelSetzen([string[]]$liste)
+}
+
+# Ein erkanntes Kürzel tatsächlich verarbeiten: das Kürzel selbst wegtippen
+# (die Wortgrenze danach hat der Haken schon verschluckt) und den Baustein an
+# seine Stelle setzen.
+function Verarbeite-Autotext-Treffer {
+    param([string]$Kuerzel)
+    $baustein = @($global:Bausteine) |
+        Where-Object { $_ -and [string]$_.autotext_kuerzel -eq $Kuerzel } |
+        Select-Object -First 1
+    if ($null -eq $baustein) { return }   # zwischenzeitlich geändert oder gelöscht
+
+    $ziel = [DocKit.Windows]::GetForegroundWindow()
+    [DocKit.Windows]::FokusZurueck($ziel)
+    try {
+        for ($i = 0; $i -lt $Kuerzel.Length; $i++) { [System.Windows.Forms.SendKeys]::SendWait('{BACKSPACE}') }
+    } catch { }
+    [void](Benutze-Baustein -Baustein $baustein -Zielfenster $ziel)
+}
+
+function Starte-Autotext {
+    if ($null -eq $global:Kuerzelwaechter) { $global:Kuerzelwaechter = New-Object DocKit.Kuerzelwaechter }
+    Aktualisiere-Autotext-Kuerzel
+    $global:Kuerzelwaechter.Installieren()
+
+    if ($null -eq $global:AutotextZeitgeber) {
+        $global:AutotextZeitgeber = New-Object System.Windows.Forms.Timer
+        $global:AutotextZeitgeber.Interval = 60
+        $global:AutotextZeitgeber.Add_Tick({
+            if ($null -eq $global:Kuerzelwaechter) { return }
+            $wort = $global:Kuerzelwaechter.NaechsterTreffer()
+            while ($null -ne $wort) {
+                Verarbeite-Autotext-Treffer $wort
+                $wort = $global:Kuerzelwaechter.NaechsterTreffer()
+            }
+        })
+    }
+    $global:AutotextZeitgeber.Start()
+}
+
+function Stoppe-Autotext {
+    if ($global:AutotextZeitgeber) { $global:AutotextZeitgeber.Stop() }
+    if ($global:Kuerzelwaechter) { $global:Kuerzelwaechter.Entfernen() }
 }
 
 
@@ -4104,23 +4383,11 @@ function Zeige-Schnellwahl {
         return
     }
 
-    $baustein = $auswahl.Objekt
-
-    if (@($baustein.felder).Count -gt 0) {
-        $ergebnis = Zeige-Assistent -Baustein $baustein
-        if ($ergebnis.Aktion -eq 'einfuegen') {
-            Fuege-Text-Ein -Text $ergebnis.Text -Rtf $ergebnis.Rtf -Zielfenster $global:Zielfenster
-        } elseif ($ergebnis.Aktion -eq 'kopieren') {
-            Fuege-Text-Ein -Text $ergebnis.Text -Rtf $ergebnis.Rtf -Zielfenster $global:Zielfenster -NurKopieren
-            Zeige-Meldung 'Der Text liegt jetzt in der Zwischenablage. Mit Strg+V einfügen.' 'Kopiert'
-        } else {
-            # Abgebrochen heißt nur: dieser Baustein doch nicht. Zurück in die
-            # Übersicht, statt das ganze Fenster wegzuklicken.
-            Zeige-Schnellwahl
-        }
-    } else {
-        $erg = Ersetze-Platzhalter-Rtf -Rtf (Hole-Baustein-Rtf $baustein) -Werte @{}
-        Fuege-Text-Ein -Text $erg.Text -Rtf $erg.Rtf -Zielfenster $global:Zielfenster
+    $aktion = Benutze-Baustein -Baustein $auswahl.Objekt -Zielfenster $global:Zielfenster
+    if ($aktion -eq 'abbruch') {
+        # Abgebrochen heißt nur: dieser Baustein doch nicht. Zurück in die
+        # Übersicht, statt das ganze Fenster wegzuklicken.
+        Zeige-Schnellwahl
     }
 }
 
@@ -4888,7 +5155,19 @@ function Zeige-Verwaltung {
     $lbBesch = Neue-Beschriftung -Text 'Wofür ist der Baustein?' -Fett
     $eBesch = Neues-Eingabefeld -Breite 300
 
-    $kopf.Controls.AddRange(@($lbName, $eName, $lbKat, $eKat, $hKat, $lbKuerzel, $eKuerzel, $lbBesch, $eBesch))
+    <#
+        Eigene, dritte Zeile für die Kürzel-Erkennung: bewusst getrennt von der
+        Zeile mit dem Such-Kürzel oben, weil es sich um zwei verschiedene Dinge
+        handelt — das eine wird nur in der DocKit-eigenen Suche benutzt, das
+        andere beim Tippen in jedem Programm mitgelesen (Abschnitt 3, sofern in
+        den Einstellungen eingeschaltet).
+    #>
+    $lbAutotext = Neue-Beschriftung -Text 'Kürzel für die automatische Erkennung (optional)' -Fett
+    $eAutotext = Neues-Eingabefeld -Breite 160
+    $hAutotext = Neue-Beschriftung -Text '' -Klein
+    $hAutotext.MaximumSize = New-Object System.Drawing.Size(560, 0)
+
+    $kopf.Controls.AddRange(@($lbName, $eName, $lbKat, $eKat, $hKat, $lbKuerzel, $eKuerzel, $lbBesch, $eBesch, $lbAutotext, $eAutotext, $hAutotext))
 
     # Zwei Zeilen: oben der Name über die volle Breite, darunter drei Felder nebeneinander.
     $spalteKuerzel = 268
@@ -4902,7 +5181,12 @@ function Zeige-Verwaltung {
         $spalte[1].Location = New-Object System.Drawing.Point($spalte[2], ($zeile2 + $spalte[0].PreferredHeight + 3))
     }
     $hKat.Location = New-Object System.Drawing.Point(14, ($eKat.Bottom + 3))
-    $kopf.Height = $hKat.Bottom + 12
+
+    $zeile3 = $hKat.Bottom + 12
+    $lbAutotext.Location = New-Object System.Drawing.Point(14, $zeile3)
+    $eAutotext.Location  = New-Object System.Drawing.Point(14, ($zeile3 + $lbAutotext.PreferredHeight + 3))
+    $hAutotext.Location  = New-Object System.Drawing.Point(14, ($eAutotext.Bottom + 3))
+    $kopf.Height = $hAutotext.Bottom + 12
 
     # Die beiden breiten Felder wachsen mit. Über Anchor allein ginge das schief,
     # weil ihre Ausgangsbreite größer ist als der Bereich beim Anlegen.
@@ -5244,11 +5528,38 @@ function Zeige-Verwaltung {
         }
     }.GetNewClosure()
 
+    <#
+        Zeigt, was das Kürzel bewirkt — und warnt, wenn ein anderer Baustein
+        dasselbe Kürzel schon benutzt: Nur einer von beiden könnte dann je
+        auslösen, und welcher, wäre reiner Zufall der Ladereihenfolge.
+
+        Muss vor $zeigeBaustein stehen, das sie aufruft — .GetNewClosure()
+        hält nur fest, was zum Zeitpunkt des Aufrufs schon eine Variable ist.
+    #>
+    $zeigeAutotextHinweis = {
+        $wert = $eAutotext.Text.Trim()
+        if ([string]::IsNullOrWhiteSpace($wert)) {
+            $hAutotext.Text = 'Wird dieses Kürzel getippt und mit Leerzeichen/Enter/Tab abgeschlossen, erscheint der Baustein sofort dort — in jedem Programm, sofern die Kürzel-Erkennung in den Einstellungen eingeschaltet ist.'
+            $hAutotext.ForeColor = $global:Farbe.Grau
+            return
+        }
+        $andere = @($global:Bausteine) | Where-Object {
+            $_ -and $_ -ne $global:AktuellerBaustein -and [string]$_.autotext_kuerzel -eq $wert
+        } | Select-Object -First 1
+        if ($andere) {
+            $hAutotext.Text = "Dieses Kürzel ist schon bei »$($andere.name)« vergeben — nur einer von beiden würde auslösen."
+            $hAutotext.ForeColor = $global:Farbe.Warnung
+        } else {
+            $hAutotext.Text = 'Wird dieses Kürzel getippt und mit Leerzeichen/Enter/Tab abgeschlossen, erscheint der Baustein sofort dort — in jedem Programm, sofern die Kürzel-Erkennung in den Einstellungen eingeschaltet ist.'
+            $hAutotext.ForeColor = $global:Farbe.Grau
+        }
+    }.GetNewClosure()
+
     $zeigeBaustein = {
         $global:Laedt = $true
         $b = $global:AktuellerBaustein
         $anAus = ($null -ne $b)
-        foreach ($c in @($eName, $eKat, $eKuerzel, $eBesch, $eText, $feldListe, $knopfPlatzhalter, $kFeldNeu, $kFeldBearb, $kFeldWeg, $kFeldHoch, $kFeldRunter)) {
+        foreach ($c in @($eName, $eKat, $eKuerzel, $eBesch, $eAutotext, $eText, $feldListe, $knopfPlatzhalter, $kFeldNeu, $kFeldBearb, $kFeldWeg, $kFeldHoch, $kFeldRunter)) {
             $c.Enabled = $anAus
         }
         if ($anAus) {
@@ -5256,6 +5567,7 @@ function Zeige-Verwaltung {
             $eKat.Text     = [string]$b.kategorie
             $eKuerzel.Text = [string]$b.kuerzel
             $eBesch.Text   = [string]$b.beschreibung
+            $eAutotext.Text = [string]$b.autotext_kuerzel
             try { $eText.Rtf = Hole-Baustein-Rtf $b } catch { $eText.Text = [string]$b.text }
             # Leiste auf das stellen, was am Textanfang gilt
             $eText.Select(0, [Math]::Min(1, $eText.TextLength))
@@ -5266,7 +5578,7 @@ function Zeige-Verwaltung {
             $eText.Select(0, 0)
             $cbAbstand.SelectedIndex = 0
         } else {
-            $eName.Text = ''; $eKat.Text = ''; $eKuerzel.Text = ''; $eBesch.Text = ''; $eText.Text = ''
+            $eName.Text = ''; $eKat.Text = ''; $eKuerzel.Text = ''; $eBesch.Text = ''; $eAutotext.Text = ''; $eText.Text = ''
             $cbSchriftart.SelectedIndex = -1
             $cbGroesse.Text = ''
             $cbAbstand.SelectedIndex = 0
@@ -5274,6 +5586,7 @@ function Zeige-Verwaltung {
         & $zeigeFelder
         $global:Laedt = $false
         & $stilAnzeigen
+        & $zeigeAutotextHinweis
     }.GetNewClosure()
 
     $merkeAenderung = {
@@ -5283,6 +5596,7 @@ function Zeige-Verwaltung {
         $b.kategorie    = $eKat.Text
         $b.kuerzel      = $eKuerzel.Text
         $b.beschreibung = $eBesch.Text
+        $b.autotext_kuerzel = $eAutotext.Text.Trim()
         $b.text         = $eText.Text
         $b.rtf          = $eText.Rtf
         # Wer hat zuletzt angefasst? In einer gemeinsam gepflegten Datei zählt das.
@@ -5291,6 +5605,8 @@ function Zeige-Verwaltung {
             $b.geaendert_am  = (Get-Date).ToString('yyyy-MM-dd HH:mm')
         }
         if ($baum.SelectedNode -and $baum.SelectedNode.Tag) { $baum.SelectedNode.Text = $eName.Text }
+        Aktualisiere-Autotext-Kuerzel
+        & $zeigeAutotextHinweis
         $global:VerwaltungGeaendert = $true
         & $setzeStatus 'Bearbeitet'
     }.GetNewClosure()
@@ -5303,7 +5619,7 @@ function Zeige-Verwaltung {
         & $zeigeBaustein
     }.GetNewClosure())
 
-    foreach ($c in @($eName, $eKuerzel, $eBesch, $eText)) { $c.Add_TextChanged($merkeAenderung) }
+    foreach ($c in @($eName, $eKuerzel, $eBesch, $eAutotext, $eText)) { $c.Add_TextChanged($merkeAenderung) }
     $eKat.Add_TextChanged($merkeAenderung)
 
     # --- Reiter "Vorlagen" ------------------------------------------------------
@@ -6259,6 +6575,28 @@ $cRueck.Width = 520
 
     $hNurText = Neue-Beschriftung -Text 'Nur einschalten, wenn ein Programm mit formatiertem Text nicht zurechtkommt.' -Klein
 
+    # --- Kürzel-Erkennung ---
+    $trenner3 = New-Object System.Windows.Forms.Label
+    $trenner3.BorderStyle = 'Fixed3D'; $trenner3.Height = 2; $trenner3.Width = 560
+
+    $lAutotext = Neue-Beschriftung -Text 'Kürzel-Erkennung' -Fett
+
+    $cAutotext = New-Object System.Windows.Forms.CheckBox
+    $cAutotext.Text = 'Kürzel wie #AV beim Tippen erkennen — in jedem Programm, nicht nur in DocKit'
+    $cAutotext.AutoSize = $true
+    $cAutotext.Checked = [bool]$global:Einstellungen.autotext_aktiv
+
+    $hAutotext = Neue-Beschriftung -Text (
+        'Braucht dafür einen systemweiten Tastatur-Mitleser — dieselbe Technik, die z. B. ' +
+        'PhraseExpress benutzt. Deshalb standardmäßig aus. Aufgezeichnet oder gespeichert wird ' +
+        'nichts: Nur die letzten paar Zeichen seit dem letzten Leerzeichen werden kurz im Speicher ' +
+        'gehalten und sofort wieder vergessen, sobald geprüft ist, ob eines der hinterlegten Kürzel ' +
+        'passt. Manche Virenschutz-Programme stufen diese Art Mitleser dennoch als verdächtig ein — ' +
+        'bei Problemen hier wieder ausschalten. Welches Kürzel zu welchem Baustein gehört, wird bei ' +
+        'jedem Baustein einzeln festgelegt (leer = nimmt nicht teil).'
+    ) -Klein
+    $hAutotext.MaximumSize = New-Object System.Drawing.Size(560, 0)
+
     # --- Anordnung: alles untereinander, Höhen werden gemessen statt geraten ---
     $y = 20
     Setze-Unter $flaeche $lTaste ([ref]$y) 20 8
@@ -6296,6 +6634,12 @@ $cRueck.Width = 520
     Setze-Unter $flaeche $hSchrift ([ref]$y) 20 12
     Setze-Unter $flaeche $cNurText ([ref]$y) 20 2
     Setze-Unter $flaeche $hNurText ([ref]$y) 40 16
+
+    $trenner3.Anchor = 'Top,Left,Right'
+    Setze-Unter $flaeche $trenner3 ([ref]$y) 20 14
+    Setze-Unter $flaeche $lAutotext ([ref]$y) 20 10
+    Setze-Unter $flaeche $cAutotext ([ref]$y) 20 2
+    Setze-Unter $flaeche $hAutotext ([ref]$y) 40 16
 
     $trenner2.Anchor = 'Top,Left,Right'
     Setze-Unter $flaeche $trenner2 ([ref]$y) 20 14
@@ -6350,6 +6694,10 @@ $cRueck.Width = 520
         $global:Einstellungen.leere_zeilen_aufraeumen      = $cLeer.Checked
         $global:Einstellungen.zwischenablage_zuruecksetzen = $cRueck.Checked
         $global:Einstellungen.nur_reiner_text              = $cNurText.Checked
+
+        # Sofort wirksam, kein Neustart nötig — weder beim Ein- noch beim Ausschalten.
+        $global:Einstellungen.autotext_aktiv = $cAutotext.Checked
+        if ($cAutotext.Checked) { Starte-Autotext } else { Stoppe-Autotext }
 
         if ($cbStdSchrift.SelectedItem) { $global:Einstellungen.standard_schriftart = [string]$cbStdSchrift.SelectedItem }
         $zahl = 12.0
@@ -6641,6 +6989,9 @@ function Starte-Programm {
     $global:Tray.Text = "DocKit — $(Hotkey-Text)"
     $global:MenueSchnellwahl.Text = "Schnellwahl öffnen   ($(Hotkey-Text))"
 
+    # --- Kürzel-Erkennung (nur, wenn in den Einstellungen eingeschaltet) ---
+    if ($global:Einstellungen.autotext_aktiv) { Starte-Autotext }
+
     $kontext = New-Object System.Windows.Forms.ApplicationContext
 
     $global:MenueSchnellwahl.Add_Click({
@@ -6651,6 +7002,7 @@ function Starte-Programm {
     $mEinstellungen.Add_Click({ Zeige-Einstellungen })
     $mAnleitung.Add_Click({ Oeffne-Anleitung })
     $mBeenden.Add_Click({
+        Stoppe-Autotext
         $global:Tray.Visible = $false
         $kontext.ExitThread()
     }.GetNewClosure())
