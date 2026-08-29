@@ -6,6 +6,11 @@
 /ebayKA/
 /Icon.png
 
+# DocKit: echte Textbausteindatei nie veröffentlichen, nur den Programmordner.
+# Eine neue Datei entsteht beim ersten Start automatisch mit erfundenen Beispielen.
+/DocKit/Daten/bausteine.json
+/DocKit/Daten/bausteine.json.sicherung
+
 # Lokale Berechtigungen von Claude Code
 .claude/settings.local.json
 

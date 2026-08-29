@@ -1,0 +1,631 @@
+﻿<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DocKit — Anleitung</title>
+<style>
+  :root {
+    --akzent: #00548c;
+    --akzent-hell: #e8f0f8;
+    --rahmen: #d6dae0;
+    --grau: #69707a;
+    --grund: #ffffff;
+    --text: #1c1e22;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 0 20px 80px;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    font-size: 17px; line-height: 1.6;
+    color: var(--text); background: #f7f8fa;
+  }
+  main { max-width: 780px; margin: 0 auto; }
+  header {
+    background: var(--akzent); color: #fff;
+    margin: 0 -20px 32px; padding: 36px 20px;
+  }
+  header .kopfzeile {
+    max-width: 780px; margin: 0 auto;
+    display: flex; align-items: center; gap: 16px;
+  }
+  header svg.marke { width: 54px; height: 54px; flex: 0 0 auto; }
+  header .urheber {
+    display: block; font-size: 8px; font-weight: 400;
+    letter-spacing: .04em; opacity: .8; margin-top: 3px;
+  }
+  header h1 { margin: 0 0 6px; font-size: 30px; }
+  header p { margin: 0; opacity: .85; }
+  h2 {
+    margin: 44px 0 12px; font-size: 22px;
+    padding-bottom: 6px; border-bottom: 2px solid var(--rahmen);
+  }
+  h3 { margin: 26px 0 6px; font-size: 18px; }
+  p, li { margin: 8px 0; }
+  code, kbd {
+    font-family: Consolas, "Courier New", monospace;
+    background: #eef0f3; border: 1px solid var(--rahmen);
+    border-radius: 4px; padding: 1px 6px; font-size: 15px;
+  }
+  kbd { background: #fff; box-shadow: 0 1px 0 var(--rahmen); }
+  .kasten {
+    background: var(--grund); border: 1px solid var(--rahmen);
+    border-left: 4px solid var(--akzent);
+    padding: 14px 18px; margin: 18px 0; border-radius: 4px;
+  }
+  .kasten.warnung { border-left-color: #be2828; }
+  .kasten p:first-child { margin-top: 0; }
+  .kasten p:last-child { margin-bottom: 0; }
+  table { border-collapse: collapse; width: 100%; margin: 16px 0; background: var(--grund); }
+  th, td { border: 1px solid var(--rahmen); padding: 8px 12px; text-align: left; vertical-align: top; }
+  th { background: var(--akzent-hell); font-weight: 600; }
+  td code { background: #f7f8fa; }
+  ol.schritte { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.schritte > li {
+    counter-increment: s; position: relative;
+    padding: 4px 0 4px 44px; margin: 14px 0;
+  }
+  ol.schritte > li::before {
+    content: counter(s); position: absolute; left: 0; top: 2px;
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--akzent); color: #fff;
+    font-weight: 700; font-size: 15px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .leise { color: var(--grau); font-size: 15px; }
+  footer { margin-top: 60px; padding-top: 16px; border-top: 1px solid var(--rahmen); color: var(--grau); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header><div class="kopfzeile">
+  <svg class="marke" viewBox="0 0 64 64" aria-hidden="true">
+    <circle cx="32" cy="32" r="32" fill="#fff"/>
+    <text x="32" y="41" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+          font-size="25" font-weight="700" fill="#00548c">DK</text>
+  </svg>
+  <div>
+  <h1>DocKit<span class="urheber">by Tim Oldenburg</span></h1>
+  <p>Immer wiederkehrende Texte auf Tastendruck — in jedem Programm, ganz ohne Internet.</p>
+  </div>
+</div></header>
+
+<main>
+
+<div class="kasten">
+  <p><strong>Das Wichtigste in drei Sätzen.</strong> Du startest das Programm einmal, dann liegt es
+  unten rechts in der Taskleiste und wartet. Drückst du irgendwo <kbd>Strg</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>,
+  öffnet sich ein Suchfeld mit deinen Bausteinen. Du wählst einen aus, füllst gegebenenfalls ein
+  paar Felder aus — und der fertige Text steht dort, wo dein Cursor vorher war.</p>
+</div>
+
+<h2>1. Erster Start</h2>
+
+<ol class="schritte">
+  <li>Doppelklick auf <code>DocKit starten.bat</code>.</li>
+  <li>Kurz warten. Unten rechts erscheint ein blauer Kreis mit <strong>DK</strong> und eine
+      kleine Sprechblase meldet, dass das Programm läuft.
+      <span class="leise">Ist das Symbol nicht zu sehen: auf den kleinen Pfeil neben der Uhr klicken,
+      dort versteckt Windows selten benutzte Symbole.</span></li>
+  <li>Fertig. Es wurde nichts installiert und nichts an Windows verändert.</li>
+</ol>
+
+<p>Zum Beenden: Rechtsklick auf das Symbol → <em>DocKit beenden</em>.</p>
+
+<h2>2. Einen Baustein einfügen</h2>
+
+<ol class="schritte">
+  <li>Klicke dort hin, wo der Text hinsoll — in Word, in eine E-Mail, in ein Formular, egal wo.</li>
+  <li>Drücke <kbd>Strg</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd>.</li>
+  <li>Tippe ein paar Buchstaben. Die Liste wird sofort kürzer.
+      Gesucht wird in Name, Kürzel und Beschreibung — <code>lad</code> findet die Zeugenladung.</li>
+  <li>Mit <kbd>↑</kbd> <kbd>↓</kbd> auswählen und <kbd>Enter</kbd> drücken.</li>
+  <li>Hat der Baustein Felder, geht jetzt der Assistent auf (siehe unten). Sonst steht der Text
+      sofort an deiner Cursorstelle.</li>
+</ol>
+
+<p>Blau geschriebene Einträge in der Liste fragen noch etwas nach, schwarze werden direkt eingefügt.</p>
+
+<h2>3. Der Assistent</h2>
+
+<p>Links stehen die Angaben, die dieser Baustein braucht, rechts läuft die Vorschau mit — du siehst
+also beim Ausfüllen schon, was herauskommt.</p>
+
+<table>
+  <tr><th>Taste</th><th>Wirkung</th></tr>
+  <tr><td><kbd>Tab</kbd></td><td>zum nächsten Feld</td></tr>
+  <tr><td><kbd>Strg</kbd>+<kbd>Enter</kbd></td><td>einfügen</td></tr>
+  <tr><td><kbd>Esc</kbd></td><td>abbrechen, nichts passiert</td></tr>
+</table>
+
+<p><strong>Nur kopieren</strong> legt den Text in die Zwischenablage, ohne ihn einzufügen — praktisch,
+wenn du erst noch das Zielprogramm suchen musst. Einfügen dann von Hand mit <kbd>Strg</kbd>+<kbd>V</kbd>.</p>
+
+<div class="kasten">
+  <p>Steht in der Vorschau noch etwas <span style="color:#be2828">rot in geschweiften Klammern</span>,
+  dann gibt es für diesen Platzhalter kein Feld. Der Text wird trotzdem eingefügt — die Klammer bleibt
+  dann aber stehen. In der Verwaltung lässt sich das mit einem Klick auf <em>Ausprobieren</em> prüfen.</p>
+</div>
+
+<h2>4. Eigene Bausteine anlegen</h2>
+
+<p>Rechtsklick auf das Symbol → <em>Bausteine verwalten…</em></p>
+
+<ol class="schritte">
+  <li><strong>Neu</strong> anklicken. Links im Baum erscheint ein neuer Eintrag.</li>
+  <li>Oben <strong>Name</strong> vergeben, <strong>Kategorie</strong> wählen oder neu eintippen,
+      optional ein <strong>Kürzel</strong> zum schnellen Finden.</li>
+  <li>In das große Feld den Text schreiben. Alles, was später wechselt, kommt in geschweifte Klammern:
+      <code>{Nachname}</code>.</li>
+  <li>Für jede Klammer unten rechts ein <strong>Neues Feld</strong> anlegen — gleicher Name, passende Art.</li>
+  <li><strong>Ausprobieren</strong> zeigt, wie es aussieht. <strong>Speichern</strong> schreibt es auf die Platte.</li>
+</ol>
+
+<p class="leise">Der Knopf <em>Platzhalter einfügen</em> über dem Textfeld setzt die Klammer an der
+Cursorstelle ein — dann muss man sich die Schreibweise nicht merken.</p>
+
+<h3>Textbausteindateien — gemeinsam oder eigen</h3>
+
+<p>Alle Bausteine stehen in einer <strong>Textbausteindatei</strong> (Endung <code>.tbd</code>).
+Beim allerersten Start fragt das Programm, ob es eine vorhandene öffnen oder eine neue anlegen soll.
+Danach merkt es sich, welche zuletzt offen war.</p>
+
+<p>Damit lässt sich genau das bauen, was im Dienst gebraucht wird:</p>
+
+<table>
+  <tr><th>Datei</th><th>Liegt</th><th>Wofür</th></tr>
+  <tr><td><em>Dienststelle.tbd</em></td><td>auf einem gemeinsamen Laufwerk</td><td>verbindliche Vorlagen der Dienststelle</td></tr>
+  <tr><td><em>Meine Textbausteine.tbd</em></td><td>im eigenen Ordner</td><td>persönliche Bausteine, E-Mails</td></tr>
+</table>
+
+<p><strong>Wechseln geht an zwei Stellen:</strong></p>
+
+<ul>
+  <li>Unten links in der <strong>Schnellwahl</strong> — dort steht die laufende Datei in einer
+    Klappliste. Umschalten, Baustein wählen, fertig. Das ist der schnelle Weg mitten im Schreiben.
+    Am Ende der Liste stehen außerdem <em>Andere Datei öffnen</em> und <em>Neue Datei anlegen</em>.</li>
+  <li>Rechtsklick auf das Symbol in der Taskleiste → <strong>Textbausteindatei</strong>. Dort stehen
+    die zuletzt benutzten, dazu <em>Andere Datei öffnen</em> und <em>Neue Datei anlegen</em>.</li>
+</ul>
+
+<div class="kasten">
+  <p>Eine Datei auf einem Netzlaufwerk kann auch <strong>schreibgeschützt</strong> sein — dann lesen
+  alle dieselben Vorlagen, ändern kann sie nur, wer darf. Die eigenen Einstellungen liegen davon
+  getrennt im eigenen Benutzerprofil, sodass jeder Anmeldename seine eigene Tastenkombination und
+  seine eigene zuletzt geöffnete Datei hat.</p>
+</div>
+
+<p class="leise">Ist ein Laufwerk gerade nicht verbunden, sagt das Programm das beim Öffnen und
+bleibt bei der bisherigen Datei — statt stillschweigend mit leerer Liste zu starten.</p>
+
+<h3>Kategorien</h3>
+
+<p>Das Feld <strong>Kategorie</strong> im Verwaltungsfenster ist kein reines Auswahlfeld — du kannst
+dort <strong>einfach hineinschreiben</strong>. Steht dort etwas Neues, entsteht die Kategorie beim
+Verlassen des Feldes, und der Baustein wandert links im Baum sofort dorthin. Wird eine Kategorie
+leer, verschwindet sie von selbst.</p>
+
+<p>In der <strong>Übersicht</strong> lassen sich Kategorien auch nachträglich ordnen:</p>
+
+<ul>
+  <li><strong>Umbenennen oder auflösen:</strong> Rechtsklick auf eine Kategorieüberschrift. Beim
+  Auflösen wird nichts gelöscht — die Bausteine wandern nach <em>Ohne Kategorie</em>.</li>
+  <li><strong>Verschieben:</strong> Einen Baustein auf eine andere Überschrift ziehen. Er bekommt
+  deren Kategorie.</li>
+  <li><strong>Zu- und aufklappen:</strong> Klick auf die Überschrift. Wie es zuletzt stand, merkt
+  sich das Programm.</li>
+</ul>
+
+<div class="kasten">
+  <p><strong>Wer hat das gebaut?</strong> Jeder Baustein merkt sich beim Speichern den
+  Windows-Anmeldenamen und den Zeitpunkt — einmal für das Anlegen, einmal für die letzte Änderung.
+  Bei einer gemeinsamen Datei der Dienststelle lässt sich damit nachvollziehen, wer zuletzt daran
+  war. Ältere Dateien ohne diese Angaben werden weiter gelesen; die Angaben entstehen beim nächsten
+  Speichern.</p>
+</div>
+
+<h3>Formatierung — fett, kursiv, Schriftart, Zeilenabstand</h3>
+
+<p>Über dem Textfeld liegt eine Leiste wie in Word:</p>
+
+<table>
+  <tr><th>Bedienelement</th><th>Wirkung</th></tr>
+  <tr><td>Schriftart und Größe</td><td>Gilt für den markierten Text. Ohne Markierung für das, was du als Nächstes tippst.</td></tr>
+  <tr><td><b>F</b> &nbsp; <i>K</i> &nbsp; <u>U</u></td><td>Fett, Kursiv, Unterstrichen — an- und ausschaltbar.</td></tr>
+  <tr><td>links · mitte · rechts</td><td>Ausrichtung des Absatzes, in dem der Cursor steht.</td></tr>
+  <tr><td>Zeilenabstand</td><td>1,0 · 1,15 · 1,5 · 2,0 Zeilen, für die markierten Absätze.</td></tr>
+</table>
+
+<p><strong>Voreingestellt ist Arial 12 mit 1,5 Zeilen.</strong> Das lässt sich in den Einstellungen
+umstellen und gilt dann für neu angelegte Bausteine; vorhandene behalten ihre eigene Formatierung.</p>
+
+<div class="kasten">
+  <p><strong>Ein Platzhalter übernimmt die Formatierung seiner Stelle.</strong> Setzt du
+  <code>{Nachname}</code> in der Vorlage fett, kommt der eingesetzte Name fett heraus. Du gestaltest
+  also die Vorlage, nicht jeden Einzelfall.</p>
+</div>
+
+<p>Beim Einfügen landen <em>zwei</em> Fassungen gleichzeitig in der Zwischenablage: die formatierte
+und eine schlichte. Word und Outlook nehmen die formatierte, ein einfaches Eingabefeld die schlichte.
+Sollte ein Programm damit trotzdem nicht zurechtkommen, gibt es in den Einstellungen den Schalter
+<em>„Immer nur reinen Text einfügen"</em>.</p>
+
+<p class="leise">Eine Einschränkung: Blocksatz gibt es nicht — das Textfeld von Windows kennt nur
+links, mittig und rechts.</p>
+
+<h3>Die sieben Feldarten</h3>
+
+<table>
+  <tr><th>Art</th><th>Wofür</th></tr>
+  <tr><td>Textfeld (eine Zeile)</td><td>Name, Aktenzeichen, Ort</td></tr>
+  <tr><td>Textfeld (mehrere Zeilen)</td><td>Sachverhalt, Begründung</td></tr>
+  <tr><td>Auswahlliste</td><td>Herr/Frau, Dienststelle, Anlass</td></tr>
+  <tr><td>Datum</td><td>Termin, Tatzeit — mit Kalender zum Anklicken</td></tr>
+  <tr><td>Uhrzeit</td><td>Termin, Beginn</td></tr>
+  <tr><td>Zahl</td><td>Anzahl, Seiten, Betrag</td></tr>
+  <tr><td>Ja/Nein</td><td>ganze Absätze ein- oder ausblenden</td></tr>
+</table>
+
+<h3>Auswahllisten mit unterschiedlicher Anzeige</h3>
+
+<p>Im Feldeditor kann jede Zeile zweigeteilt sein: <em>was man sieht</em> <code>=</code>
+<em>was eingefügt wird</em>.</p>
+
+<table>
+  <tr><th>Eingetragen</th><th>Auswahlliste zeigt</th><th>Eingefügt wird</th></tr>
+  <tr><td><code>Herr = Sehr geehrter Herr</code></td><td>Herr</td><td>Sehr geehrter Herr</td></tr>
+  <tr><td><code>Frau = Sehr geehrte Frau</code></td><td>Frau</td><td>Sehr geehrte Frau</td></tr>
+  <tr><td><code>Telefonat</code></td><td>Telefonat</td><td>Telefonat</td></tr>
+</table>
+
+<p>So genügt <em>ein</em> Feld für die komplette Anredezeile — die richtige Endung kommt automatisch mit.</p>
+
+<h3>Ja/Nein-Felder</h3>
+
+<p>Ein Ja/Nein-Feld ist ein Haken im Assistenten. Ist er gesetzt, wird der hinterlegte Text eingesetzt;
+ist er nicht gesetzt, verschwindet die Stelle spurlos — auch die leere Zeile. Damit baut man einen
+Baustein, der mal mit und mal ohne Fristsetzung, Rechtsbehelf oder Zusatzhinweis herauskommt.</p>
+
+<p class="leise">Im Text eines Ja/Nein-Feldes dürfen wieder Platzhalter stehen, etwa
+<code>Ich bitte um Rückmeldung bis zum {Fristdatum}.</code></p>
+
+<h3>Felder, die von anderen abhängen</h3>
+
+<p>Ganz unten im Feldeditor steht <strong>„Dieses Feld nur anzeigen, wenn …"</strong>. Damit wird ein
+Feld an die Auswahl in einem anderen Feld gekoppelt: Es erscheint im Assistenten erst, wenn dort der
+passende Eintrag gewählt ist — und verschwindet wieder, sobald du umschaltest.</p>
+
+<p>Der mitgelieferte Baustein <em>Aktenanforderung Dienstaufsicht</em> zeigt das:</p>
+
+<table>
+  <tr><th>Feld</th><th>Art</th><th>Bedingung</th></tr>
+  <tr><td><code>Fristsatz</code></td><td>Auswahlliste</td><td>immer sichtbar</td></tr>
+  <tr><td><code>Fristdatum</code></td><td>Datum</td><td>nur wenn <code>{Fristsatz}</code> auf „bis zu einem Datum" steht</td></tr>
+</table>
+
+<p>Die Auswahlliste <code>Fristsatz</code> hat drei Einträge, die ganze Sätze einfügen:</p>
+
+<table>
+  <tr><th>Auswahl</th><th>Eingefügt wird</th></tr>
+  <tr><td>bis morgen</td><td>Um Übersendung bis morgen wird gebeten.</td></tr>
+  <tr><td>bis zu einem Datum</td><td>Um Übersendung bis zum <code>{Fristdatum}</code> wird gebeten.</td></tr>
+  <tr><td>ohne Frist</td><td><em>(nichts)</em></td></tr>
+</table>
+
+<p>Wählst du „bis zu einem Datum", taucht darunter das Kalenderfeld auf und der Satz füllt sich.
+Wählst du etwas anderes, ist das Kalenderfeld weg — und der Platzhalter darin taucht nirgends auf.
+Ein ausgeblendetes Feld zählt immer als leer.</p>
+
+<div class="kasten">
+  <p>Bedingungen lassen sich auch <strong>ketten</strong>: Feld A blendet Feld B ein, Feld B blendet
+  Feld C ein. Wird A umgestellt, verschwinden B und C gemeinsam. Als Bedingung taugen Auswahllisten
+  und Ja/Nein-Felder — also alles, was feste Antwortmöglichkeiten hat.</p>
+</div>
+
+<h3>Ein Ja/Nein-Block mit eigenem Auswahlfeld darin</h3>
+
+<p>Der Text eines Ja/Nein-Feldes darf selbst wieder Platzhalter enthalten — und die dazugehörigen
+Felder erscheinen nur, wenn der Haken gesetzt ist. Damit baust du zum Beispiel eine Erinnerung, die
+mitzählt:</p>
+
+<table>
+  <tr><th>Feld</th><th>Art</th><th>Inhalt</th></tr>
+  <tr><td><code>Erinnerung</code></td><td>Ja/Nein</td>
+      <td>Text bei „ja": <em>Dies ist bereits meine <code>{Anzahl}</code> Anfrage in dieser Sache.</em></td></tr>
+  <tr><td><code>Anzahl</code></td><td>Auswahlliste</td>
+      <td>erste · zweite · dritte · vierte<br>Bedingung: nur anzeigen, wenn <code>{Erinnerung}</code> auf <em>ja</em> steht</td></tr>
+</table>
+
+<p>Im Baustein selbst steht nur <code>{Erinnerung}</code>. Setzt du den Haken, erscheint darunter die
+Auswahl <em>erste/zweite/dritte/vierte</em>, und der Satz füllt sich. Nimmst du den Haken weg,
+verschwinden Auswahl und Satz zusammen — ohne Lücke im Text.</p>
+
+<p>Den Platzhalter <code>{Anzahl}</code> setzt du im Feldeditor mit dem Knopf
+<strong>Platzhalter einfügen</strong> über den Ja/Nein-Textfeldern ein. Er bietet dir alle anderen
+Felder des Bausteins an.</p>
+
+<p class="leise">Das geht auch noch eine Stufe tiefer: Der eingesetzte Wert darf selbst wieder einen
+Platzhalter enthalten. Aufgelöst wird bis zu fünfmal hintereinander.</p>
+
+<p class="leise">Kleine Einschränkung: Ein Eintrag einer Auswahlliste ist immer <em>eine</em> Zeile.
+Soll ein <em>mehrzeiliger</em> Block wahlweise erscheinen, nimm dafür ein Ja/Nein-Feld — dessen
+Text darf beliebig lang sein.</p>
+
+<h3>Platzhalter, die es immer gibt</h3>
+
+<p>Diese funktionieren in jedem Baustein, ohne dass ein Feld angelegt werden muss:</p>
+
+<table>
+  <tr><th>Platzhalter</th><th>Ergibt</th></tr>
+  <tr><td><code>{heute}</code></td><td>heutiges Datum, z. B. 18.08.2026</td></tr>
+  <tr><td><code>{uhrzeit}</code></td><td>aktuelle Uhrzeit, z. B. 14:35</td></tr>
+  <tr><td><code>{jahr}</code> <code>{monat}</code> <code>{tag}</code></td><td>einzelne Bestandteile des Datums</td></tr>
+  <tr><td><code>{benutzer}</code></td><td>dein Windows-Anmeldename</td></tr>
+  <tr><td><code>{computer}</code></td><td>Name des Rechners</td></tr>
+  <tr><td><code>{zwischenablage}</code></td><td>was gerade kopiert ist</td></tr>
+</table>
+
+<p>Bei Datumsfeldern kann man die <strong>Vorbelegung</strong> rechnen lassen — das ist etwas
+anderes als ein Platzhalter und steht im Feldeditor: <code>heute</code>, <code>morgen</code>,
+<code>gestern</code>, <code>+7</code> (in einer Woche), <code>-3</code> (vor drei Tagen) oder ein festes
+Datum wie <code>24.12.2026</code>.</p>
+
+<h2>5. Vorlagen — ganze Dateien statt Text</h2>
+
+<p>Ein Textbaustein liefert Text. Eine <strong>Vorlage</strong> liefert eine ganze Datei: den
+Blanko-Briefkopf, das leere Vermerksformular, die Excel-Liste. DocKit merkt sich, wo die
+Ursprungsdatei liegt, und legt auf Wunsch eine Kopie davon an.</p>
+
+<h3>Eine Vorlage anlegen</h3>
+
+<p>Zieh die Datei aus dem Explorer in die Übersicht, Reiter <em>Vorlagen</em>. Mehr ist nicht nötig.
+Es wird <strong>keine Kopie</strong> gespeichert, nur der Pfad — die Vorlage bleibt dort liegen, wo
+sie hingehört, und Änderungen daran wirken sofort.</p>
+
+<h3>Eine Vorlage ansehen</h3>
+
+<p>Vorlage auswählen und auf den Knopf <em>Vorschau</em> klicken — in der Übersicht wie in der
+Verwaltung — öffnet ein eigenes Vorschaufenster in DocKit selbst. Ein bloßer Klick auf die Zeile
+reicht dafür bewusst nicht: Der wählt nur aus, ausgelöst wird die Vorschau erst über den Knopf.
+Word oder Excel werden dafür im Hintergrund kurz angesprochen, aber nie sichtbar geöffnet; es
+erscheint kein fremdes Programmfenster. Gezeigt wird die erste Seite bei einer Word-Datei, das
+benutzte Zellfeld bei einer Excel-Datei, ein Foto direkt.</p>
+
+<div class="kasten">
+  <p><strong>Die Ursprungsdatei wird dabei nur gelesen, nie verändert.</strong> Lässt sich für ein
+  Dateiformat keine Vorschau erzeugen — oder soll die Datei tatsächlich in Word oder Excel geöffnet
+  werden —, steht im Vorschaufenster der Knopf <em>In eigenem Programm öffnen</em>. Der öffnet dann
+  wie bisher eine schreibgeschützte Kopie in einem Temp-Ordner, die nicht von Hand aufgeräumt werden
+  muss.</p>
+</div>
+
+<h3>Eine Vorlage benutzen</h3>
+
+<ol>
+  <li>Öffne im Explorer den Ordner, in dem die neue Datei liegen soll.</li>
+  <li>Öffne DocKit mit der Tastenkombination und wähle die Vorlage.</li>
+  <li>DocKit fragt nur nach dem <strong>Dateinamen</strong>. Wohin, weiß es schon: in den Ordner
+  des Explorer-Fensters, das zuletzt offen war.</li>
+</ol>
+
+<div class="kasten">
+  <p><strong>Warum kein Feld für den Zielordner?</strong> Weil du dich beim Schreiben ohnehin schon
+  im richtigen Ordner befindest. Ein Auswahlfeld hieße, den Weg ein zweites Mal zu klicken. Findet
+  DocKit kein Explorer-Fenster, fragt es nach — dann erst.</p>
+</div>
+
+<h3>Einen Baustein gleich hineinschreiben</h3>
+
+<p>Beim Anlegen einer Vorlage lässt sich einmalig festlegen, dass beim Benutzen zusätzlich ein
+Textbaustein in die Kopie geschrieben wird. Drei Möglichkeiten, wohin:</p>
+
+<table>
+  <tr><th>Stelle</th><th>Bedeutung</th></tr>
+  <tr><td>an eine Textmarke</td><td>Word-Textmarke im Dokument, etwa <em>Sachverhalt</em></td></tr>
+  <tr><td>an einen Suchbegriff</td><td>Der Text ersetzt die erste Fundstelle, etwa <em>[HIER]</em></td></tr>
+  <tr><td>ans Ende</td><td>Der Baustein wird angehängt</td></tr>
+</table>
+
+<p>Hat der Baustein Felder, fragt der Assistent sie vorher ab — genau wie beim normalen Einfügen.
+Auf Wunsch öffnet sich die fertige Kopie gleich in Word.</p>
+
+<p class="leise">Für das Schreiben in die Kopie wird Word benötigt. Fehlt Word, sagt DocKit das und
+legt die Kopie trotzdem an — nur eben leer.</p>
+
+<h3>Eine Vorlage wieder herausziehen</h3>
+
+<p>Umgekehrt geht es auch: Zieh eine Vorlage aus der Übersicht in einen Explorer-Ordner. Dort landet
+eine Kopie.</p>
+
+<h2>6. Kombinationen — Vorlage und Baustein(e) als Paar</h2>
+
+<p>Manche Vorlage und mancher Baustein gehören eigentlich immer zusammen — der
+Abschlussvermerk besteht fast immer aus der Vorlage <em>Vermerk</em> und dem gleichnamigen
+Textbaustein darin. Statt das jedes Mal von Hand zu kombinieren, legst du dafür einmal eine
+<strong>Kombination</strong> an. Beim Benutzen fragt DocKit dann nicht mehr, welcher Baustein
+hinein soll — er steht schon fest. Eine Kombination kann auch <strong>mehrere Bausteine</strong>
+verknüpfen, jeden an seiner eigenen Stelle im Dokument — etwa ein Anschreiben, das gleichzeitig
+eine Anrede an einer Marke im Text bekommt und einen Anlagenvermerk ans Ende angehängt.</p>
+
+<h3>Eine Kombination anlegen</h3>
+
+<ol>
+  <li>Bausteine verwalten → Reiter <em>Kombinationen</em> → <em>Neu</em>.</li>
+  <li>Einen Namen vergeben — der erscheint später in der Übersicht und wird zum Dateinamen,
+  etwa <em>Abschlussvermerk</em>.</li>
+  <li>Die Vorlage aus der Klappliste wählen.</li>
+  <li>Bei den Bausteinen auf <em>Neu</em>: den Baustein wählen und festlegen, wohin er soll —
+  an eine Marke im Text, an eine Word-Textmarke, oder ans Ende des Dokuments. Für einen weiteren
+  Baustein diesen Schritt wiederholen; jeder bekommt seine eigene Stelle.</li>
+</ol>
+
+<div class="kasten">
+  <p><strong>Vorlage und Bausteine müssen schon existieren.</strong> Eine Kombination verknüpft
+  nur — sie legt weder die Vorlage noch die Bausteine selbst an. Alle bleiben unverändert und
+  lassen sich weiter auch einzeln benutzen. Die Einfügestelle einer Vorlage selbst spielt für eine
+  Kombination keine Rolle mehr — jeder verknüpfte Baustein trägt seine eigene.</p>
+</div>
+
+<h3>Eine Kombination benutzen</h3>
+
+<p>Genau wie eine Vorlage: aus der Übersicht ziehen oder auswählen. DocKit fragt nur nach dem
+<strong>Dateinamen</strong>, legt die Kopie an und startet nacheinander den Assistenten für jeden
+verknüpften Baustein — die Zwischenfrage „Soll ein Baustein hinein?" entfällt. Jeder Baustein
+landet danach an seiner eigenen, vorher festgelegten Stelle.</p>
+
+<p class="leise">Findet sich für einen von mehreren Bausteinen die vorgesehene Stelle nicht mehr
+(etwa weil die Marke aus der Vorlage verschwunden ist), werden die übrigen trotzdem geschrieben —
+DocKit meldet nur den einen, der nicht geklappt hat.</p>
+
+<h3>Wenn etwas fehlt</h3>
+
+<p>Wird die verknüpfte Vorlage oder einer der verknüpften Bausteine später gelöscht, meldet sich
+DocKit beim nächsten Benutzen der Kombination statt einfach nichts zu tun. In der Übersicht
+und in der Verwaltung steht dann <em>— fehlt —</em> statt des Namens.</p>
+
+<h2>7. Bausteine an Kollegen weitergeben</h2>
+
+<p>Ein Kollege hätte gern deinen Baustein — oder du willst einen in die gemeinsame Datei der
+Dienststelle geben. Dafür gibt es eine kleine Datei mit der Endung <code>.tbx</code>. Darin steckt
+der Baustein mit allem, was dazugehört: Text, Formatierung, Felder, Auswahllisten. Sie lässt sich
+an eine Mail hängen wie jede andere Anlage.</p>
+
+<h3>Der schnelle Weg: ziehen</h3>
+
+<p>Fass den Baustein in der Übersicht an und zieh ihn</p>
+
+<ul>
+  <li><strong>in einen Ordner</strong> — dort liegt er dann als <code>.tbx</code>-Datei, oder</li>
+  <li><strong>direkt in ein offenes Mailfenster</strong> — er hängt sofort als Anlage daran.</li>
+</ul>
+
+<p class="leise">Ziehst du ihn dagegen innerhalb der Übersicht auf eine andere Kategorieüberschrift,
+wandert er dorthin. DocKit unterscheidet das am Ziel.</p>
+
+<h3>Der ausführliche Weg: das Fenster</h3>
+
+<p>Rechtsklick auf den Baustein in der Übersicht → <strong>Weitergeben …</strong>. In der
+Bausteinverwaltung gibt es unten denselben Knopf. Drei Möglichkeiten stehen zur Wahl:</p>
+
+<table>
+  <tr><th>Weg</th><th>Wofür</th></tr>
+  <tr><td>Als Datei speichern</td><td>Auf ein Laufwerk legen oder später an eine Mail hängen</td></tr>
+  <tr><td>In die Zwischenablage</td><td>In der Mail Strg+V drücken — die Datei hängt dann daran</td></tr>
+  <tr><td>In eine andere Datei schreiben</td><td>Direkt in eine andere Textbausteindatei, etwa die der Dienststelle</td></tr>
+</table>
+
+<div class="kasten">
+  <p><strong>Die geöffnete Datei bleibt unangetastet.</strong> Wer aus seiner eigenen Datei etwas an
+  die der Dienststelle gibt, muss dafür nicht wechseln — es wird nur dort hineingeschrieben.</p>
+</div>
+
+<h3>Etwas übernehmen, das du bekommen hast</h3>
+
+<p>Zieh die <code>.tbx</code>-Datei aus der Mail oder aus dem Explorer einfach in das
+DocKit-Fenster. Es öffnet sich eine Liste mit allem, was darin steckt — Haken setzen bei dem, was
+du haben willst, und <em>Übernehmen</em>. Über das Menü geht es auch: Rechtsklick auf das Symbol in
+der Taskleiste → <strong>Textbausteindatei</strong> → <em>Bausteine übernehmen …</em>.</p>
+
+<p>Dasselbe funktioniert mit einer kompletten <code>.tbd</code>-Datei: Wer dir seine ganze Sammlung
+schickt, dessen Bausteine kannst du einzeln herauspicken, ohne die Datei zu öffnen.</p>
+
+<div class="kasten">
+  <p><strong>Wenn ein Name schon vergeben ist</strong>, entscheidet die Klappliste unten, was
+  geschieht: <em>beide behalten</em> (der neue bekommt den Absender in den Namen, etwa
+  <em>Zeugenladung (von mueller)</em>), <em>den vorhandenen ersetzen</em> oder <em>den neuen
+  überspringen</em>. Voreingestellt ist <em>beide behalten</em> — so geht nie etwas verloren.</p>
+</div>
+
+<p class="leise">Übernommene Bausteine erscheinen mit deinem Anmeldenamen als letztem Bearbeiter;
+wer sie ursprünglich angelegt hat, steht weiterhin daneben.</p>
+
+<h2>8. Mit auf den USB-Stick</h2>
+
+<p>Den kompletten Ordner <code>DocKit</code> auf den Stick kopieren — mehr ist nicht nötig.
+Auf dem anderen Rechner die <code>DocKit starten.bat</code> vom Stick aus starten. Deine
+Bausteine sind dabei, denn sie liegen im Unterordner <code>Daten</code>.</p>
+
+<div class="kasten">
+  <p><strong>Nichts bleibt zurück.</strong> Das Programm schreibt ausschließlich in seinen eigenen
+  Ordner. Keine Installation, kein Eintrag in der Registry, kein Autostart, keine Internetverbindung.
+  Ziehst du den Stick ab, ist der fremde Rechner unverändert.</p>
+</div>
+
+<h2>9. Einstellungen</h2>
+
+<p>Rechtsklick auf das Symbol → <em>Einstellungen…</em></p>
+
+<table>
+  <tr><th>Einstellung</th><th>Bedeutung</th></tr>
+  <tr><td>Tastenkombination</td><td>Welche Tasten die Schnellwahl öffnen. Mindestens <kbd>Strg</kbd> oder <kbd>Alt</kbd> muss dabei sein.</td></tr>
+  <tr><td>Sofort einfügen</td><td>Aus: der Text landet nur in der Zwischenablage und wird von Hand eingefügt.</td></tr>
+  <tr><td>Leerzeilen entfernen</td><td>Sorgt dafür, dass abgewählte Ja/Nein-Abschnitte keine Lücken hinterlassen.</td></tr>
+  <tr><td>Zwischenablage wiederherstellen</td><td>Was du vorher kopiert hattest, steht danach wieder zur Verfügung.</td></tr>
+</table>
+
+<h2>10. Wenn etwas nicht funktioniert</h2>
+
+<h3>Windows warnt vor einem „unbekannten Herausgeber"</h3>
+
+<p>Das ist kein Fehler und kein Virenfund. DocKit trägt keine gekaufte Herstellersignatur — die
+kostet Geld und muss jährlich erneuert werden. In der Meldung auf <em>Weitere Informationen</em>
+klicken, dann auf <em>Trotzdem ausführen</em>. Beim nächsten Mal kommt sie nicht wieder.</p>
+
+<p>Damit sie gar nicht erst erscheint: Doppelklick auf <code>Windows-Warnung aufheben.bat</code>
+neben der Programmdatei. Das entfernt die Herkunftsmarkierung, die Windows an heruntergeladene
+Dateien hängt — ohne Administratorrechte und ohne etwas am Rechner zu ändern. Kommt die Datei aus
+einer ZIP-Datei, geht es noch einfacher: Rechtsklick auf die ZIP → <em>Eigenschaften</em> →
+<em>Zulassen</em> ankreuzen, und erst danach entpacken.</p>
+
+<p class="leise">In den Dateieigenschaften unter <em>Details</em> steht als Hersteller
+<em>Tim Oldenburg</em>. Windows prüft diese Angabe nur nicht — dafür bräuchte es die Signatur.</p>
+
+<h3>Es passiert nichts beim Doppelklick</h3>
+<p>Starte stattdessen <code>Hilfe bei Problemen.bat</code>. Dabei bleibt ein schwarzes Fenster offen,
+in dem die Fehlermeldung stehen bleibt.</p>
+
+<h3>Die Tastenkombination reagiert nicht</h3>
+<p>Dann benutzt sie schon ein anderes Programm. In den Einstellungen eine andere wählen, zum Beispiel
+<kbd>Strg</kbd>+<kbd>Alt</kbd>+<kbd>B</kbd>. Läuft DocKit versehentlich zweimal, meldet es
+sich beim zweiten Start selbst.</p>
+
+<h3>Der Text wird nicht eingefügt, ist aber kopiert</h3>
+<p>Manche Programme lassen sich nicht von außen bedienen — vor allem, wenn sie als Administrator
+laufen. Einfach <kbd>Strg</kbd>+<kbd>V</kbd> drücken, der Text liegt bereit.</p>
+
+<h3>Ich habe mir die Bausteine zerschossen</h3>
+<p>Im Ordner <code>Daten</code> liegt neben <code>bausteine.json</code> eine Datei
+<code>bausteine.json.sicherung</code> — die Fassung vor dem letzten Speichern. Endung
+<code>.sicherung</code> entfernen, die kaputte Datei ersetzen, fertig.</p>
+
+<div class="kasten warnung">
+  <p><strong>Zum Mitdenken:</strong> Die Bausteine liegen unverschlüsselt in einer Textdatei.
+  Was auf einen USB-Stick wandert, kann verloren gehen. Keine personenbezogenen Daten und keine
+  Vorgangsinhalte in die Bausteine schreiben — Bausteine sind Vorlagen, die Namen kommen erst
+  beim Ausfüllen dazu.</p>
+</div>
+
+<h2>Impressum</h2>
+
+<table>
+  <tr><th>Angabe</th><th></th></tr>
+  <tr><td>Programm</td><td>DocKit — Baukasten für Schriftgut, Fassung 1.0</td></tr>
+  <tr><td>Urheber</td><td>Tim Oldenburg</td></tr>
+  <tr><td>Rückmeldungen</td><td>über <a href="https://github.com/famoldenburgki-stack/FamOProjects/issues">GitHub Issues</a> in diesem Repository</td></tr>
+  <tr><td>Stand</td><td>August 2026</td></tr>
+</table>
+
+<p class="leise">DocKit ist <strong>privat entstanden</strong> und keine dienstlich eingeführte
+Software. Es wurde mit Unterstützung eines KI-Assistenten gebaut; der Quelltext liegt vollständig
+im Ordner <code>Programm</code> und ist lesbar, damit sich jede Zeile nachvollziehen lässt.
+Verwendung auf eigene Verantwortung, ohne Gewähr. Rückmeldungen, Fehler und Wünsche gerne an die
+oben genannte Adresse.</p>
+
+<footer>
+  DocKit — Baukasten für Schriftgut. Läuft mit Windows-Bordmitteln (PowerShell und WinForms),
+  ohne Installation und ohne Internetverbindung.
+</footer>
+
+</main>
+</body>
+</html>

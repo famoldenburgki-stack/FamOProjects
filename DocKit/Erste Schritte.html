@@ -1,0 +1,227 @@
+﻿<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Erste Schritte</title>
+<style>
+  :root{
+    --grund:#f4f6f9; --flaeche:#ffffff; --linie:#d3dce6;
+    --tinte:#16212c; --gedaempft:#5c6b7a;
+    --akzent:#00548c; --akzent-flaeche:#e3edf6; --gruen:#156e47;
+    --schrift:"Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    --fest:Consolas, "Cascadia Mono", monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --grund:#0e1620; --flaeche:#16212e; --linie:#26374a;
+      --tinte:#e6edf4; --gedaempft:#93a5b8;
+      --akzent:#5cb3e8; --akzent-flaeche:#15293b; --gruen:#4ade80;
+    }
+  }
+  :root[data-theme="dark"]{
+    --grund:#0e1620; --flaeche:#16212e; --linie:#26374a;
+    --tinte:#e6edf4; --gedaempft:#93a5b8;
+    --akzent:#5cb3e8; --akzent-flaeche:#15293b; --gruen:#4ade80;
+  }
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--grund); color:var(--tinte);
+       font-family:var(--schrift); font-size:17px; line-height:1.6}
+  .rand{max-width:48rem; margin:0 auto; padding:0 1.25rem 4rem}
+
+  header{padding:3rem 0 1.5rem; display:flex; flex-direction:column; gap:.7rem}
+  .marke{display:flex; align-items:center; gap:.65rem; font-weight:700; color:var(--akzent); font-size:.95rem}
+  .marke svg{width:1.6rem; height:1.6rem; display:block}
+  h1{margin:0; font-size:clamp(2rem,5.5vw,2.8rem); font-weight:800; letter-spacing:-.025em; line-height:1.1}
+  header p{margin:0; color:var(--gedaempft); max-width:38rem}
+
+  h2{margin:2.5rem 0 .6rem; font-size:1.4rem; font-weight:800; letter-spacing:-.015em;
+     padding-top:1.2rem; border-top:1px solid var(--linie)}
+  h3{margin:1.6rem 0 .4rem; font-size:1.08rem; font-weight:600}
+  p{margin:.5rem 0}
+
+  .schritte{list-style:none; margin:1rem 0 0; padding:0; display:grid; gap:.9rem}
+  .schritte li{display:grid; grid-template-columns:2.1rem 1fr; gap:.9rem; align-items:start}
+  .schritte b.nr{display:grid; place-items:center; width:2.1rem; height:2.1rem; border-radius:50%;
+    background:var(--akzent); color:#fff; font-size:.95rem; font-weight:700}
+  .schritte div{padding-top:.15rem}
+
+  .kasten{background:var(--akzent-flaeche); border-left:4px solid var(--akzent);
+    border-radius:.5rem; padding:.9rem 1.1rem; margin:1.2rem 0}
+  .kasten p{margin:.3rem 0}
+
+  table{border-collapse:collapse; width:100%; margin:1rem 0; font-size:.97rem}
+  th,td{text-align:left; padding:.55rem .7rem; border-bottom:1px solid var(--linie); vertical-align:top}
+  th{font-weight:600; color:var(--gedaempft); font-size:.87rem; text-transform:uppercase; letter-spacing:.05em}
+
+  kbd{font-family:var(--fest); font-size:.88em; font-weight:600; background:var(--flaeche);
+    border:1px solid var(--linie); border-bottom-width:2px; border-radius:.3rem;
+    padding:.08em .45em; white-space:nowrap}
+  code{font-family:var(--fest); font-size:.9em; background:var(--akzent-flaeche);
+    color:var(--akzent); border-radius:.25rem; padding:.08em .35em}
+    .urheber{display:block; font-size:8px; font-weight:400; letter-spacing:.04em;
+      color:var(--gedaempft); margin-top:.15rem}
+  .leise{color:var(--gedaempft); font-size:.95rem}
+  .gut{color:var(--gruen); font-weight:600}
+  .fuss{margin-top:3rem; padding-top:1.2rem; border-top:1px solid var(--linie);
+    color:var(--gedaempft); font-size:.9rem}
+</style>
+</head>
+<body>
+<div class="rand">
+
+<header>
+  <div class="marke">
+    <svg viewBox="0 0 64 64" aria-hidden="true">
+      <circle cx="32" cy="32" r="32" fill="#00548c"/>
+      <text x="32" y="41" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif"
+            font-size="25" font-weight="700" fill="#fff">DK</text>
+    </svg>
+    DocKit<span class="urheber">by Tim Oldenburg</span>
+  </div>
+  <h1>Erste Schritte</h1>
+  <p>Vorlagen und Textbausteine in jedes Programm einfügen — per Tastendruck.
+     Nichts zu installieren, nichts einzurichten.</p>
+</header>
+
+<h2>Loslegen</h2>
+
+<ol class="schritte">
+  <li><b class="nr">1</b><div><strong>Ordner auf den Stick kopieren.</strong>
+      Vollständig, mit allen Unterordnern.</div></li>
+  <li><b class="nr">2</b><div><strong>Doppelklick auf <code>DocKit.exe</code>.</strong>
+      Unten rechts in der Taskleiste erscheint ein blauer Kreis mit <strong>DK</strong> —
+      eventuell hinter dem kleinen Pfeil versteckt.</div></li>
+  <li><b class="nr">3</b><div><strong>Beim ersten Start wirst du gefragt</strong>, wo deine
+      Bausteine liegen sollen: eine vorhandene Datei öffnen oder eine neue anlegen.
+      Eine neue startet mit vier Beispielen zum Ausprobieren.</div></li>
+  <li><b class="nr">4</b><div><strong>Irgendwo <kbd>Strg</kbd> + <kbd>Alt</kbd> + <kbd>T</kbd>
+      drücken</strong> — in Word, in Outlook, im Fachverfahren. Die Auswahl geht auf,
+      du wählst, der Text steht da.</div></li>
+</ol>
+
+<div class="kasten">
+  <p><strong>Beenden:</strong> Rechtsklick auf das Symbol unten rechts →
+     <em>DocKit beenden</em>.</p>
+</div>
+
+<h2>Was mitgeliefert wird</h2>
+
+<table>
+  <tr><th>Datei</th><th>Wofür</th></tr>
+  <tr><td><code>DocKit.exe</code></td><td>Das Programm. Eine einzige Datei.</td></tr>
+  <tr><td><code>PORTABEL.txt</code></td>
+      <td>Solange diese Datei daneben liegt, bleiben alle Einstellungen <strong>auf dem
+          Stick</strong>. Auf dem fremden Rechner bleibt nichts zurück.</td></tr>
+  <tr><td><code>Anleitung.html</code></td><td>Die ausführliche Bedienungsanleitung.</td></tr>
+  <tr><td><code>PRUEFUNG.md</code></td><td>Hinweise für die technische Prüfung.</td></tr>
+  <tr><td><code>Windows-Warnung aufheben.bat</code></td>
+      <td>Nur nötig, wenn Windows beim Start warnt — siehe unten.</td></tr>
+  <tr><td><code>Programm\</code></td><td>Der Quelltext und das Bauskript.</td></tr>
+</table>
+
+<h2>„Der Computer wurde durch Windows geschützt"</h2>
+
+<p>Beim ersten Start kann Windows eine blaue Meldung zeigen: <em>Unbekannter Herausgeber</em>.
+Das ist kein Fehler und kein Virenfund. Windows sagt damit nur: Diese Datei trägt keine
+gekaufte Herstellersignatur, und sie kam über das Netz auf diesen Rechner.</p>
+
+<p><strong>So geht es weiter:</strong> In der Meldung auf <em>Weitere Informationen</em> klicken,
+dann auf <em>Trotzdem ausführen</em>. Das war es — beim nächsten Mal kommt die Meldung nicht wieder.</p>
+
+<div class="kasten">
+  <p><strong>Damit die Meldung gar nicht erst erscheint:</strong> Doppelklick auf
+  <code>Windows-Warnung aufheben.bat</code> neben der Programmdatei. Das entfernt die
+  Herkunftsmarkierung, die Windows an heruntergeladene Dateien hängt. Es braucht keine
+  Administratorrechte und ändert nichts am Rechner — nur die Markierung an diesen Dateien.</p>
+  <p>Noch einfacher, wenn du die ZIP-Datei gerade erst heruntergeladen hast: Rechtsklick auf die
+  ZIP-Datei → <em>Eigenschaften</em> → unten <em>Zulassen</em> ankreuzen → <em>OK</em>, und erst
+  <strong>danach</strong> entpacken. Dann ist keine der entpackten Dateien markiert.</p>
+</div>
+
+<p class="leise">Wer die Warnung ganz vermeiden will, bräuchte ein Signaturzertifikat einer
+anerkannten Stelle — das kostet Geld und muss jährlich erneuert werden. In den
+Dateieigenschaften unter <em>Details</em> steht als Hersteller trotzdem <strong>Tim
+Oldenburg</strong>; diese Angabe wird von Windows nur nicht geprüft.</p>
+
+<h2>Wenn die Programmdatei nicht startet</h2>
+
+<p>Manche Arbeitsplätze lassen unsignierte Programme nicht zu. Dann führt der zweite Weg
+zum Ziel: Doppelklick auf <code>Falls die Programmdatei blockiert ist.bat</code>. Das startet
+dasselbe Programm, nur über Windows-Bordmittel statt über die <code>.exe</code>.</p>
+
+<p class="leise">Zeigt auch das nichts, hilft <code>Hilfe bei Problemen.bat</code> — dort bleibt
+ein schwarzes Fenster mit der Fehlermeldung stehen.</p>
+
+<h2>Die vier Bausteinarten</h2>
+
+<table>
+  <tr><th>Art</th><th>Beispiel</th><th>Was passiert</th></tr>
+  <tr><td><strong>Fester Text</strong></td><td>Grußformel</td>
+      <td>Wird sofort eingefügt, ohne Nachfrage.</td></tr>
+  <tr><td><strong>Baustein mit Feldern</strong></td><td>Zeugenladung</td>
+      <td>Ein Fenster geht auf: Anrede wählen, Datum setzen, Absätze an- und abwählen.
+          Rechts läuft die Vorschau mit.</td></tr>
+  <tr><td><strong>Vorlage</strong></td><td>Blanko-Briefkopf</td>
+      <td>Eine Datei wird in den Ordner kopiert, in dem du gerade im Explorer bist —
+          auf Wunsch gleich mit einem Baustein darin.</td></tr>
+  <tr><td><strong>Kombination</strong></td><td>Abschlussvermerk</td>
+      <td>Wie eine Vorlage, nur mit fest verknüpftem Baustein — die Nachfrage, welcher
+          Baustein hinein soll, entfällt.</td></tr>
+</table>
+
+<h2>Für den Test besonders interessant</h2>
+
+<p>Dieser Ordner ist bewusst <strong>leer ausgeliefert</strong>: Es liegt keine
+Bausteindatei bei. Damit lässt sich genau das prüfen, was im Alltag einmal passiert —
+der allererste Start.</p>
+
+<table>
+  <tr><th>Zu prüfen</th><th>Erwartetes Verhalten</th></tr>
+  <tr><td>Erster Start überhaupt</td>
+      <td>Willkommensfenster mit zwei Möglichkeiten: vorhandene Datei öffnen oder neue anlegen.</td></tr>
+  <tr><td>Neue Datei anlegen</td>
+      <td>Speichern-Dialog, danach vier Beispielbausteine. Die Datei trägt die Endung <code>.tbd</code>.</td></tr>
+  <tr><td>Zweiter Start</td>
+      <td>Keine Frage mehr — die zuletzt benutzte Datei wird geöffnet.</td></tr>
+  <tr><td>Zweite Datei anlegen</td>
+      <td>Rechtsklick aufs Symbol → <em>Textbausteindatei</em> → <em>Neue Datei anlegen</em>.
+          Danach unten links in der Übersicht zwischen beiden wechseln.</td></tr>
+  <tr><td>Auf einem anderen Rechner</td>
+      <td>Stick anstecken, starten — die eigenen Einstellungen sind da, weil sie mitgereist sind.</td></tr>
+</table>
+
+<div class="kasten">
+  <p><span class="gut">Gut zu wissen:</span> Eine Bausteindatei ist eine ganz normale Datei.
+     Sie darf auf einem gemeinsamen Laufwerk liegen, damit eine Dienststelle dieselben
+     Vorlagen benutzt — und daneben führt jeder seine eigene.</p>
+</div>
+
+<h2>Was das Programm nicht tut</h2>
+
+<p>Keine Netzverbindung, kein Eintrag in die Registry, kein Autostart, keine erhöhten
+Rechte, kein Tastaturmitschnitt. Es läuft nur, solange du es geöffnet hast.
+Einzelheiten samt Fundstellen im Quelltext stehen in <code>PRUEFUNG.md</code>.</p>
+
+<h2>Impressum</h2>
+
+<table>
+  <tr><th>Angabe</th><th></th></tr>
+  <tr><td>Programm</td><td>DocKit — Baukasten für Schriftgut, Fassung 1.0</td></tr>
+  <tr><td>Urheber</td><td>Tim Oldenburg</td></tr>
+  <tr><td>Rückmeldungen</td><td>über <a href="https://github.com/famoldenburgki-stack/FamOProjects/issues">GitHub Issues</a> in diesem Repository</td></tr>
+  <tr><td>Stand</td><td>August 2026</td></tr>
+</table>
+
+<p class="leise">DocKit ist <strong>privat entstanden</strong> und keine dienstlich eingeführte
+Software. Es wurde mit Unterstützung eines KI-Assistenten gebaut; der Quelltext liegt vollständig
+im Ordner <code>Programm</code> und ist lesbar, damit sich jede Zeile nachvollziehen lässt.
+Verwendung auf eigene Verantwortung, ohne Gewähr. Rückmeldungen, Fehler und Wünsche gerne an die
+oben genannte Adresse.</p>
+
+<p class="fuss">Fragen, Fehler, Wünsche — melden. Das Werkzeug entsteht entlang der Praxis,
+nicht am Reißbrett.</p>
+
+</div>
+</body>
+</html>
