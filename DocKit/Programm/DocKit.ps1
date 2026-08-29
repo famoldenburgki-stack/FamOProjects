@@ -2851,6 +2851,10 @@ function Zeige-Assistent {
     }.GetNewClosure())
 
     $fenster.Add_Shown({
+        # Ohne das kann Windows das Fenster im Hintergrund lassen, wenn es aus
+        # einem Zusammenhang ohne eigenen Vordergrund heraus geöffnet wurde —
+        # etwa bei der Kürzel-Erkennung, ausgelöst aus einem fremden Programm.
+        [DocKit.Windows]::FokusZurueck($fenster.Handle)
         $mitte.SplitterDistance = [int]($mitte.ClientSize.Width * 0.46)
         & $positioniereKnoepfe
         & $aktualisiere
